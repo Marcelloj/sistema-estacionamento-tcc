@@ -20,4 +20,8 @@ import com.tcc.sistema_estacionamento.modelo.RegistroEstacionamento;
 public interface RegistroEstacionamentoRepositorio
         extends JpaRepository<RegistroEstacionamento, Long> {
 
+            // Verifica se a placa já possui um registro sem horário de saída
+            boolean existsByPlacaAndHorarioSaidaIsNull(String placa);
+
 }
+

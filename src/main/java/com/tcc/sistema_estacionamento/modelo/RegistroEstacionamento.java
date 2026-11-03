@@ -1,7 +1,8 @@
+
 package com.tcc.sistema_estacionamento.modelo;
 
 import jakarta.persistence.*;
-
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -22,10 +23,17 @@ public class RegistroEstacionamento {
     private LocalDateTime horarioPagamento;
     private LocalDateTime horarioLiberacaoCancela;
 
-    private double valorTarifaOriginal;
-    private double valorTarifa;
-    private double valorPago;
-    private double troco;
+    @Column(precision = 10, scale = 2)
+    private BigDecimal valorTarifaOriginal;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal valorTotal;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal valorPago;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal troco;  // Não precisa 
 
     @Enumerated(EnumType.STRING)
     private StatusPagamento statusPagamento = StatusPagamento.PENDENTE;
@@ -43,10 +51,6 @@ public class RegistroEstacionamento {
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getPlaca() {
@@ -89,35 +93,35 @@ public class RegistroEstacionamento {
         this.horarioLiberacaoCancela = horarioLiberacaoCancela;
     }
 
-    public double getValorTarifaOriginal() {
+    public BigDecimal getValorTarifaOriginal() {
         return valorTarifaOriginal;
     }
 
-    public void setValorTarifaOriginal(double valorTarifaOriginal) {
+    public void setValorTarifaOriginal(BigDecimal valorTarifaOriginal) {
         this.valorTarifaOriginal = valorTarifaOriginal;
     }
 
-    public double getValorTarifa() {
-        return valorTarifa;
+    public BigDecimal getValorTotal() {
+        return valorTotal;
     }
 
-    public void setValorTarifa(double valorTarifa) {
-        this.valorTarifa = valorTarifa;
+    public void setValorTotal(BigDecimal valorTotal) {
+        this.valorTotal = valorTotal;
     }
 
-    public double getValorPago() {
+    public BigDecimal getValorPago() {
         return valorPago;
     }
 
-    public void setValorPago(double valorPago) {
+    public void setValorPago(BigDecimal valorPago) {
         this.valorPago = valorPago;
     }
 
-    public double getTroco() {
+    public BigDecimal getTroco() {
         return troco;
     }
 
-    public void setTroco(double troco) {
+    public void setTroco(BigDecimal troco) {
         this.troco = troco;
     }
 

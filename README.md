@@ -15,7 +15,7 @@ A aplicação será desenvolvida em Java com Spring Boot, utilizando uma arquite
 
 | Tecnologia | Versão / Utilização |
 |---|---|
-| Java | JDK 25.0.3 LTS |
+| Java | JDK 21 LTS |
 | Spring Boot | 4.1.2 |
 | Apache Maven | 3.9.11 no ambiente inicial |
 | Git | 2.42.0 no ambiente inicial |
@@ -34,7 +34,7 @@ As dependências do projeto estão declaradas no arquivo `pom.xml`.
 
 Antes de iniciar, instale:
 
-- JDK 25
+- JDK 21
 - Git
 - Maven, caso não utilize o Maven Wrapper incluído no projeto
 - Cursor, VS Code ou outra IDE compatível com Java

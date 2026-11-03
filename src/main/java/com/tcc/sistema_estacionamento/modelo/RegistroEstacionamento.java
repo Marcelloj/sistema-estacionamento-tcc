@@ -1,46 +1,56 @@
-/*
- * RESPONSÁVEL: Marcello
- *
- * OBJETIVO:
- * Representar o registro de permanência de
- * um veículo no estacionamento.
- *
- * TAREFAS:
- * 1. Definir os atributos do registro.
- * 2. Configurar a entidade com JPA.
- * 3. Criar os métodos necessários.
- */
-
-
 package com.tcc.sistema_estacionamento.modelo;
 
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
-import java.math.BigDecimal;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-
-
- @Entity 
+@Entity
+@Table(name = "REGISTRO_ESTACIONAMENTO")
 public class RegistroEstacionamento {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    private Long id; // Identificador único do registro
-    private String placa; // Placa do veiculo
-    private LocalDateTime horarioEntrada; // Data e hora da entrada
-    private LocalDateTime horarioSaida; // Data e hora da saída
-    private BigDecimal valorTotal; // Valor cobrado pelo estacionamento
+    @Column(nullable = false)
+    private String placa;
+
+    @Column(nullable = false)
+    private LocalDateTime horarioEntrada;
+
+    private LocalDateTime horarioSaida;
+    private LocalDateTime horarioPagamento;
+    private LocalDateTime horarioLiberacaoCancela;
+
+    private double valorTarifaOriginal;
+    private double valorTarifa;
+    private double valorPago;
+    private double troco;
+
+    @Enumerated(EnumType.STRING)
+    private StatusPagamento statusPagamento = StatusPagamento.PENDENTE;
+
+    @Enumerated(EnumType.STRING)
+    private StatusVeiculo statusVeiculo = StatusVeiculo.ESTACIONADO;
+
+    @Enumerated(EnumType.STRING)
+    private MetodoPagamento metodoPagamento;
+
+    private String codigoTransacao;
+
+    public RegistroEstacionamento() {
+    }
 
     public Long getId() {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public String getPlaca() {
-        return placa;   
+        return placa;
     }
 
     public void setPlaca(String placa) {
@@ -51,24 +61,95 @@ public class RegistroEstacionamento {
         return horarioEntrada;
     }
 
-    public LocalDateTime getHorarioSaida() {
-        return horarioSaida;
-    }
-
     public void setHorarioEntrada(LocalDateTime horarioEntrada) {
         this.horarioEntrada = horarioEntrada;
+    }
+
+    public LocalDateTime getHorarioSaida() {
+        return horarioSaida;
     }
 
     public void setHorarioSaida(LocalDateTime horarioSaida) {
         this.horarioSaida = horarioSaida;
     }
 
-    public BigDecimal getValorTotal() {
-        return valorTotal;
+    public LocalDateTime getHorarioPagamento() {
+        return horarioPagamento;
     }
 
-    public void setValorTotal(BigDecimal valorTotal) {
-        this.valorTotal = valorTotal;
+    public void setHorarioPagamento(LocalDateTime horarioPagamento) {
+        this.horarioPagamento = horarioPagamento;
     }
 
+    public LocalDateTime getHorarioLiberacaoCancela() {
+        return horarioLiberacaoCancela;
+    }
+
+    public void setHorarioLiberacaoCancela(LocalDateTime horarioLiberacaoCancela) {
+        this.horarioLiberacaoCancela = horarioLiberacaoCancela;
+    }
+
+    public double getValorTarifaOriginal() {
+        return valorTarifaOriginal;
+    }
+
+    public void setValorTarifaOriginal(double valorTarifaOriginal) {
+        this.valorTarifaOriginal = valorTarifaOriginal;
+    }
+
+    public double getValorTarifa() {
+        return valorTarifa;
+    }
+
+    public void setValorTarifa(double valorTarifa) {
+        this.valorTarifa = valorTarifa;
+    }
+
+    public double getValorPago() {
+        return valorPago;
+    }
+
+    public void setValorPago(double valorPago) {
+        this.valorPago = valorPago;
+    }
+
+    public double getTroco() {
+        return troco;
+    }
+
+    public void setTroco(double troco) {
+        this.troco = troco;
+    }
+
+    public StatusPagamento getStatusPagamento() {
+        return statusPagamento;
+    }
+
+    public void setStatusPagamento(StatusPagamento statusPagamento) {
+        this.statusPagamento = statusPagamento;
+    }
+
+    public StatusVeiculo getStatusVeiculo() {
+        return statusVeiculo;
+    }
+
+    public void setStatusVeiculo(StatusVeiculo statusVeiculo) {
+        this.statusVeiculo = statusVeiculo;
+    }
+
+    public MetodoPagamento getMetodoPagamento() {
+        return metodoPagamento;
+    }
+
+    public void setMetodoPagamento(MetodoPagamento metodoPagamento) {
+        this.metodoPagamento = metodoPagamento;
+    }
+
+    public String getCodigoTransacao() {
+        return codigoTransacao;
+    }
+
+    public void setCodigoTransacao(String codigoTransacao) {
+        this.codigoTransacao = codigoTransacao;
+    }
 }

@@ -88,12 +88,13 @@ public class ServicoAplicacaoIsencao {
                 servicoCalculo.calcularTarifa(idRegistro);
 
         // Registra o valor original e aplica gratuidade
-        registro.setValorTarifaOriginal(
-                tarifaOriginal.doubleValue()
-        );
+registro.setValorTarifaOriginal(tarifaOriginal);
 
-        registro.setValorTarifa(0.0);
-        registro.setStatusPagamento(StatusPagamento.ISENTO);
+// Zera o valor a pagar
+registro.setValorTotal(BigDecimal.ZERO);
+
+// Atualiza o pagamento para ISENTO
+registro.setStatusPagamento(StatusPagamento.ISENTO);
 
         // Impede que a nota seja utilizada novamente
         nota.setUtilizada(true);

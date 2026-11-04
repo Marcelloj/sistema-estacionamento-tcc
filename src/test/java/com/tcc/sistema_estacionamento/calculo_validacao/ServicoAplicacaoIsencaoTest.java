@@ -6,6 +6,7 @@ import com.tcc.sistema_estacionamento.modelo.StatusPagamento;
 import com.tcc.sistema_estacionamento.nota_fiscal.NotaFiscalSimulada;
 import com.tcc.sistema_estacionamento.nota_fiscal.NotaFiscalSimuladaRepositorio;
 import com.tcc.sistema_estacionamento.repositorio.RegistroEstacionamentoRepositorio;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,7 +50,7 @@ class ServicoAplicacaoIsencaoTest {
         nota.setUtilizada(false);
 
         registro = new RegistroEstacionamento();
-        registro.setId(1L);
+        ReflectionTestUtils.setField(registro, "id", 1L);
         registro.setPlaca("ABC1D23");
 
         when(repositorioNotas.buscarParaUtilizacao("NOTA-123"))
@@ -74,11 +75,9 @@ class ServicoAplicacaoIsencaoTest {
         assertEquals(StatusPagamento.ISENTO,
                 resultado.getStatusPagamento());
 
-        assertEquals(20.00,
-                resultado.getValorTarifaOriginal(), 0.001);
+                assertEquals(20.00, resultado.getValorTarifaOriginal().doubleValue(), 0.001);
 
-        assertEquals(0.00,
-                resultado.getValorTarifa(), 0.001);
+                assertEquals(0.00, resultado.getValorTotal().doubleValue(), 0.001);
 
         assertTrue(nota.isUtilizada());
 

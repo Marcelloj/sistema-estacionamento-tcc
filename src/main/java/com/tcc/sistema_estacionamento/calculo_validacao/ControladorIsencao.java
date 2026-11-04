@@ -34,7 +34,7 @@ public class ControladorIsencao {
                     "idRegistro", registro.getId(),
                     "placa", registro.getPlaca(),
                     "tarifaOriginal", registro.getValorTarifaOriginal(),
-                    "tarifaFinal", registro.getValorTarifa(),
+                    "tarifaFinal", registro.getValorTotal(),
                     "statusPagamento", registro.getStatusPagamento().name()
             ));
 

@@ -1,0 +1,338 @@
+/* ===== Variáveis ===== */
+:root {
+    --cor-principal: #14213d;
+    --cor-principal-clara: #1f3463;
+    --cor-destaque: #2f6fed;
+    --cor-fundo: #f1f4f9;
+    --cor-cartao: #ffffff;
+    --cor-texto: #1b2433;
+    --cor-texto-suave: #5b6578;
+    --cor-borda: #dde3ee;
+
+    --cor-sucesso: #1a8f4c;
+    --cor-erro: #c62f3a;
+    --cor-pendente: #b86e00;
+
+    --raio: 12px;
+    --espaco: 16px;
+    --sombra: 0 1px 2px rgba(20, 33, 61, 0.06), 0 4px 12px rgba(20, 33, 61, 0.05);
+}
+
+/* ===== Base ===== */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--cor-texto);
+    background: var(--cor-fundo);
+}
+
+button:focus-visible,
+input:focus-visible {
+    outline: 3px solid var(--cor-destaque);
+    outline-offset: 2px;
+}
+
+/* ===== Topo ===== */
+.topo {
+    background: var(--cor-principal);
+    color: #ffffff;
+}
+
+.topo__interno {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 14px var(--espaco);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.marca__logo {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: #ffffff;
+    color: var(--cor-principal);
+    font-weight: 800;
+    font-size: 1.3rem;
+}
+
+.marca__titulo {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.marca__subtitulo {
+    margin: 0;
+    font-size: 0.75rem;
+    line-height: 1.3;
+    color: #c5cde0;
+}
+
+/* ===== Conteúdo e cartão ===== */
+.conteudo {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 20px var(--espaco) 48px;
+}
+
+.cartao {
+    background: var(--cor-cartao);
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio);
+    box-shadow: var(--sombra);
+}
+
+.bloco {
+    padding: 20px;
+}
+
+.bloco + .bloco {
+    border-top: 1px solid var(--cor-borda);
+}
+
+.bloco__titulo {
+    margin: 0 0 14px;
+    font-size: 1.05rem;
+    color: var(--cor-principal);
+}
+
+/* ===== Formulário e placa ===== */
+.rotulo {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.placa {
+    border: 3px solid #1a1a1a;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #ffffff;
+    margin-bottom: 14px;
+}
+
+.placa__faixa {
+    display: block;
+    background: #1d4ed8;
+    color: #ffffff;
+    text-align: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    padding: 2px 0;
+}
+
+.placa__campo {
+    width: 100%;
+    border: 0;
+    padding: 10px 12px;
+    text-align: center;
+    font: 700 2rem/1.2 "Consolas", "Courier New", monospace;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #1a1a1a;
+    background: transparent;
+}
+
+.placa__campo::placeholder {
+    color: #b5bcc9;
+}
+
+/* ===== Botões ===== */
+.botao {
+    width: 100%;
+    font: inherit;
+    font-weight: 700;
+    padding: 14px 20px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--cor-principal);
+    color: #ffffff;
+    cursor: pointer;
+}
+
+.botao:hover:not(:disabled) {
+    background: var(--cor-principal-clara);
+}
+
+.botao:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.botao--secundario {
+    background: #5b6578;
+}
+
+/* ===== Mensagens ===== */
+.mensagem {
+    margin: 14px 0 0;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.mensagem--sucesso {
+    background: #e3f4ea;
+    color: var(--cor-sucesso);
+}
+
+.mensagem--erro {
+    background: #fbe7e9;
+    color: var(--cor-erro);
+}
+
+/* ===== Cronômetro e dados ===== */
+.cronometro {
+    margin: 0 0 12px;
+    text-align: center;
+    font: 700 3rem/1.1 "Consolas", "Courier New", monospace;
+    letter-spacing: 0.05em;
+    color: var(--cor-principal);
+}
+
+.dados {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 0 0 12px;
+}
+
+.dados dt {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--cor-texto-suave);
+}
+
+.dados dd {
+    margin: 0;
+    font-weight: 600;
+}
+
+.nota {
+    margin: 10px 0 0;
+    font-size: 0.85rem;
+    color: var(--cor-texto-suave);
+}
+
+/* ===== Validação da compra ===== */
+.campo {
+    width: 100%;
+    margin-bottom: 14px;
+    padding: 12px 14px;
+    font: inherit;
+    font-size: 1.1rem;
+    border: 2px solid var(--cor-borda);
+    border-radius: 10px;
+    background: #ffffff;
+    color: var(--cor-texto);
+}
+
+.campo:disabled {
+    background: #f1f4f9;
+    cursor: not-allowed;
+}
+
+.qr {
+    margin-top: 16px;
+    padding: 16px;
+    display: grid;
+    place-items: center;
+    min-height: 150px;
+    border: 2px dashed var(--cor-borda);
+    border-radius: 10px;
+    text-align: center;
+}
+
+.qr__vazio {
+    margin: 0;
+    color: var(--cor-texto-suave);
+    font-size: 0.9rem;
+}
+
+.qr img {
+    display: block;
+    width: 100%;
+    max-width: 220px;
+    height: auto;
+}
+
+.resultado {
+    margin: 16px 0 0;
+    padding: 14px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+}
+
+.resultado--isento {
+    background: #e3f4ea;
+    color: var(--cor-sucesso);
+}
+
+.resultado--pagamento {
+    background: #fff1d9;
+    color: var(--cor-pendente);
+}
+
+.resultado--erro {
+    background: #fbe7e9;
+    color: var(--cor-erro);
+}
+
+/* ===== Subtítulo dentro de um bloco ===== */
+.subtitulo {
+    margin: 24px 0 12px;
+    padding-top: 18px;
+    border-top: 1px dashed var(--cor-borda);
+    font-size: 0.95rem;
+    color: var(--cor-principal);
+}
+
+/* ===== Contagem para sair ===== */
+.prazo {
+    margin-bottom: 14px;
+    padding: 12px;
+    text-align: center;
+    background: #fff8ea;
+    border-radius: 10px;
+}
+
+.prazo__rotulo {
+    margin: 0;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--cor-pendente);
+}
+
+.prazo__valor {
+    margin: 0;
+    font: 700 2.4rem/1.2 "Consolas", "Courier New", monospace;
+    color: var(--cor-pendente);
+}
+
+.botao + .botao {
+    margin-top: 10px;
+}
+
+/* ===== Garante que elementos com o atributo "hidden" fiquem escondidos ===== */
+[hidden] {
+    display: none !important;
+}

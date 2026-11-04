@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estacionamento Digital</title>
+    <link rel="stylesheet" th:href="@{/css/estilo.css}">
+</head>
+<body>
+
+    <header class="topo">
+        <div class="topo__interno">
+            <span class="marca__logo" aria-hidden="true">P</span>
+            <div>
+                <p class="marca__titulo">Estacionamento Digital</p>
+                <p class="marca__subtitulo">Protótipo Acadêmico — Engenharia de Software | UNA Aimorés</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="conteudo">
+        <div class="cartao">
+
+            <!-- 1. PLACA -->
+            <section class="bloco" aria-labelledby="titulo-placa">
+                <h2 class="bloco__titulo" id="titulo-placa">1. Placa do veículo</h2>
+
+                <form id="form-entrada" novalidate>
+                    <label class="rotulo" for="placa">Digite a placa do veículo</label>
+
+                    <div class="placa">
+                        <span class="placa__faixa">BRASIL</span>
+                        <input class="placa__campo" type="text" id="placa" name="placa"
+                               placeholder="ABC1D23" maxlength="8"
+                               autocomplete="off" autocapitalize="characters" spellcheck="false">
+                    </div>
+
+                    <button type="submit" class="botao" id="botao-entrada">Registrar entrada</button>
+                </form>
+
+                <p class="mensagem" id="mensagem" role="status" aria-live="polite" hidden></p>
+            </section>
+
+            <!-- 2. PERMANÊNCIA -->
+            <section class="bloco" aria-labelledby="titulo-tempo">
+                <h2 class="bloco__titulo" id="titulo-tempo">2. Tempo de permanência</h2>
+
+                <p class="cronometro" id="cronometro" aria-live="off">00:00:00</p>
+
+                <dl class="dados">
+                    <div><dt>Placa</dt><dd id="dado-placa">—</dd></div>
+                    <div><dt>Entrada</dt><dd id="dado-entrada">—</dd></div>
+                    <div><dt>Veículo</dt><dd id="dado-veiculo">—</dd></div>
+                    <div><dt>Pagamento</dt><dd id="dado-pagamento">—</dd></div>
+                </dl>
+
+                <p class="nota">O cronômetro é apenas visual. A cobrança oficial é calculada pelo Java.</p>
+            </section>
+
+            <!-- 3. PAGAMENTO -->
+            <section class="bloco" aria-labelledby="titulo-pagamento">
+                <h2 class="bloco__titulo" id="titulo-pagamento">3. Pagamento</h2>
+
+                <button type="button" class="botao botao--secundario" disabled>Simular pagamento</button>
+                <p class="nota">Aguardando integração: ainda não existe rota HTTP de pagamento no sistema.</p>
+            </section>
+
+        </div>
+    </main>
+
+    <script th:src="@{/js/entrada.js}" defer></script>
+</body>
+</html>

@@ -8,6 +8,7 @@ import com.tcc.sistema_estacionamento.modelo.StatusPagamento;
 import com.tcc.sistema_estacionamento.modelo.StatusVeiculo;
 import com.tcc.sistema_estacionamento.pagamento_saida.ServicoPagamentoSaida;
 import com.tcc.sistema_estacionamento.repositorio.RegistroEstacionamentoRepositorio;
+import com.tcc.sistema_estacionamento.calculo_validacao.ServicoCalculoPermanencia;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -31,6 +32,9 @@ class ServicoPagamentoSaidaTest {
 
     @Mock
     private RegistroEstacionamentoRepositorio repositorio;
+
+    @Mock
+    private ServicoCalculoPermanencia servicoCalculo;
 
     @InjectMocks
     private ServicoPagamentoSaida servico;
@@ -76,6 +80,9 @@ class ServicoPagamentoSaidaTest {
     @DisplayName("Deve processar pagamento com sucesso")
     void deveProcessarPagamentoComSucesso() {
 
+        when(servicoCalculo.calcularTarifa(1L))
+        .thenReturn(new BigDecimal("15.00"));
+
         when(repositorio.findById(1L))
                 .thenReturn(Optional.of(registroMock));
 
@@ -102,6 +109,9 @@ class ServicoPagamentoSaidaTest {
     @Test
     @DisplayName("Não deve permitir pagamento insuficiente")
     void naoDevePermitirPagamentoInsuficiente() {
+
+        when(servicoCalculo.calcularTarifa(1L))
+        .thenReturn(new BigDecimal("15.00"));
 
         when(repositorio.findById(1L))
                 .thenReturn(Optional.of(registroMock));

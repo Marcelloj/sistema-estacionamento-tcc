@@ -9,6 +9,7 @@ import com.tcc.sistema_estacionamento.modelo.RegistroEstacionamento;
 import com.tcc.sistema_estacionamento.modelo.StatusPagamento;
 import com.tcc.sistema_estacionamento.modelo.StatusVeiculo;
 import com.tcc.sistema_estacionamento.repositorio.RegistroEstacionamentoRepositorio;
+import com.tcc.sistema_estacionamento.calculo_validacao.ServicoCalculoPermanencia;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,12 +22,16 @@ import java.util.UUID;
 @Service
 public class ServicoPagamentoSaida {
 
-    private final RegistroEstacionamentoRepositorio repositorio;
-
-    public ServicoPagamentoSaida(
-            RegistroEstacionamentoRepositorio repositorio) {
-        this.repositorio = repositorio;
-    }
+        private final RegistroEstacionamentoRepositorio repositorio;
+        private final ServicoCalculoPermanencia servicoCalculo;
+        
+        public ServicoPagamentoSaida(
+                RegistroEstacionamentoRepositorio repositorio,
+                ServicoCalculoPermanencia servicoCalculo) {
+        
+            this.repositorio = repositorio;
+            this.servicoCalculo = servicoCalculo;
+        }
 
     // Método simplificado para simular pagamento via PIX.
     @Transactional
@@ -72,6 +77,22 @@ public class ServicoPagamentoSaida {
                     "Este estacionamento já foi pago."
             );
         }
+
+        // Calcula a tarifa antes de processar um pagamento pendente
+if (registro.getStatusPagamento() == StatusPagamento.PENDENTE) {
+
+        BigDecimal tarifaCalculada =
+                servicoCalculo.calcularTarifa(idRegistro);
+    
+        // Atualiza o valor devido com base na permanencia
+        registro.setValorTarifaOriginal(tarifaCalculada);
+        registro.setValorTotal(tarifaCalculada);
+    
+        // Gratuidade automatica para a carencia de 15 minutos
+        if (tarifaCalculada.compareTo(BigDecimal.ZERO) == 0) {
+            registro.setStatusPagamento(StatusPagamento.ISENTO);
+        }
+    }
 
         BigDecimal valorTotal = registro.getValorTotal();
 

@@ -18,117 +18,75 @@
         </div>
     </header>
 
-    <main class="conteudo">
-        <div class="cartao">
+    <main class="conteudo conteudo--largo">
+        <section class="painel" aria-labelledby="titulo-patio">
 
-            <!-- 1. PLACA -->
-            <section class="bloco" aria-labelledby="titulo-placa">
-                <h2 class="bloco__titulo" id="titulo-placa">1. Placa do veículo</h2>
-
-                <form id="form-entrada" novalidate>
-                    <label class="rotulo" for="placa">Digite a placa do veículo</label>
-
-                    <div class="placa">
-                        <span class="placa__faixa">BRASIL</span>
-                        <input class="placa__campo" type="text" id="placa" name="placa"
-                               placeholder="ABC1D23" maxlength="8"
-                               autocomplete="off" autocapitalize="characters" spellcheck="false">
-                    </div>
-
-                    <button type="submit" class="botao" id="botao-entrada">Registrar entrada</button>
-                </form>
-
-                <p class="mensagem" id="mensagem" role="status" aria-live="polite" hidden></p>
-            </section>
-
-            <!-- 2. PERMANÊNCIA -->
-            <section class="bloco" aria-labelledby="titulo-tempo">
-                <h2 class="bloco__titulo" id="titulo-tempo">2. Tempo de permanência</h2>
-
-                <p class="cronometro" id="cronometro" aria-live="off">00:00:00</p>
-
-                <dl class="dados">
-                    <div><dt>Placa</dt><dd id="dado-placa">—</dd></div>
-                    <div><dt>Entrada</dt><dd id="dado-entrada">—</dd></div>
-                    <div><dt>Veículo</dt><dd id="dado-veiculo">—</dd></div>
-                    <div><dt>Pagamento</dt><dd id="dado-pagamento">—</dd></div>
-                </dl>
-
-                <p class="nota">O cronômetro é apenas visual. A cobrança oficial é calculada pelo Java.</p>
-            </section>
-
-            <!-- 3. VALIDAÇÃO DA COMPRA -->
-            <section class="bloco" aria-labelledby="titulo-validacao">
-                <h2 class="bloco__titulo" id="titulo-validacao">3. Validação da compra</h2>
-
-                <form id="form-nota" novalidate>
-                    <label class="rotulo" for="valor-compra">Valor da compra (R$)</label>
-                    <input class="campo" type="text" id="valor-compra" name="valor"
-                           inputmode="decimal" placeholder="100,00" autocomplete="off" disabled>
-
-                    <button type="submit" class="botao" id="botao-nota" disabled>Gerar nota fictícia</button>
-                </form>
-
-                <!-- O QR Code é gerado pelo Java; aqui só exibimos a imagem recebida -->
-                <div class="qr" id="area-qr" aria-live="polite">
-                    <p class="qr__vazio">O QR Code da nota, gerado pelo Java, aparecerá aqui.</p>
+            <div class="painel__topo">
+                <div>
+                    <h1 class="painel__titulo" id="titulo-patio">Veículos no pátio</h1>
+                    <p class="painel__contagem">
+                        <span id="contador-patio">0</span> veículo(s) ativo(s)
+                    </p>
                 </div>
+                <button type="button" class="botao botao--auto" id="botao-abrir-cadastro">Cadastrar veículo</button>
+            </div>
 
-                <h3 class="subtitulo">Ler cupom</h3>
+            <p class="vazio" id="mensagem-vazio">
+                Nenhum veículo no pátio. Use "Cadastrar veículo" para registrar uma entrada.
+            </p>
 
-                <form id="form-cupom" novalidate>
-                    <label class="rotulo" for="codigo-cupom">Código do cupom</label>
-                    <input class="campo" type="text" id="codigo-cupom" name="codigo"
-                           autocomplete="off" autocapitalize="characters" spellcheck="false" disabled>
+            <!-- Os cards são criados pelo JavaScript a partir do modelo abaixo -->
+            <div class="grade-veiculos" id="grade-veiculos"></div>
 
-                    <button type="submit" class="botao botao--secundario" id="botao-cupom" disabled>Verificar cupom</button>
-                </form>
-
-                <!-- Dados da nota consultada (consultar não consome a nota) -->
-                <dl class="dados" id="dados-cupom" hidden>
-                    <div><dt>Código</dt><dd id="cupom-codigo">—</dd></div>
-                    <div><dt>Valor</dt><dd id="cupom-valor">—</dd></div>
-                    <div><dt>Situação</dt><dd id="cupom-situacao">—</dd></div>
-                </dl>
-
-                <!-- Resultado da validação, definido pelo Java -->
-                <p class="resultado" id="resultado-validacao" role="status" aria-live="polite" hidden></p>
-
-                <p class="nota">Aguardando integração: o módulo de notas ainda não tem rotas HTTP. Regra de referência do grupo: compra a partir de R$ 50,00 concede gratuidade. Quem decide é o Java. Com o celular, a câmera lê o QR Code gerado pelo Java e abre a página de validação; ler pela câmera dentro do navegador exige HTTPS.</p>
-            </section>
-
-            <!-- 4. PAGAMENTO -->
-            <section class="bloco" aria-labelledby="titulo-pagamento">
-                <h2 class="bloco__titulo" id="titulo-pagamento">4. Pagamento</h2>
-
-                <button type="button" class="botao botao--secundario" disabled>Simular pagamento</button>
-                <p class="nota">Aguardando integração: ainda não existe rota HTTP de pagamento no sistema.</p>
-            </section>
-
-            <!-- 5. SAÍDA -->
-            <section class="bloco" aria-labelledby="titulo-saida">
-                <h2 class="bloco__titulo" id="titulo-saida">5. Saída</h2>
-
-                <p class="situacao-cancela">
-                    Cancela: <strong class="situacao-cancela__valor" id="situacao-cancela">FECHADA</strong>
-                </p>
-
-                <div class="prazo">
-                    <p class="prazo__rotulo">Tempo para sair</p>
-                    <p class="prazo__valor" id="contagem-saida" aria-live="off">--:--</p>
-                </div>
-
-                <button type="button" class="botao botao--secundario" id="botao-saida" disabled>Registrar saída</button>
-                <button type="button" class="botao botao--secundario" id="botao-passagem" disabled>Simular passagem</button>
-
-                <p class="mensagem" id="mensagem-saida" role="status" aria-live="polite" hidden></p>
-
-                <p class="nota">Aguardando integração: ainda não existe rota HTTP para liberar a cancela e registrar a saída. A contagem de 15 minutos (prazo combinado pelo grupo) começa quando o Java autorizar a saída, e o prazo oficial é controlado por ele.</p>
-            </section>
-
-        </div>
+        </section>
     </main>
 
-    <script th:src="@{/js/entrada.js}" defer></script>
+    <!-- MODAL: cadastro de veículo -->
+    <dialog class="modal" id="modal-cadastro" aria-labelledby="titulo-cadastro">
+        <form id="form-entrada" novalidate>
+            <h2 class="modal__titulo" id="titulo-cadastro">Cadastrar veículo</h2>
+
+            <label class="rotulo" for="placa">Digite a placa do veículo</label>
+
+            <div class="placa">
+                <span class="placa__faixa">BRASIL</span>
+                <input class="placa__campo" type="text" id="placa" name="placa"
+                       placeholder="ABC1D23" maxlength="8"
+                       autocomplete="off" autocapitalize="characters" spellcheck="false">
+            </div>
+
+            <p class="mensagem" id="mensagem-cadastro" role="alert" hidden></p>
+
+            <div class="modal__acoes">
+                <button type="button" class="botao botao--secundario" id="botao-cancelar-cadastro">Cancelar</button>
+                <button type="submit" class="botao" id="botao-entrada">Registrar entrada</button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- MODELO DO CARD: copiado pelo JavaScript para cada veículo -->
+    <template id="modelo-card">
+        <article class="veiculo">
+            <header class="veiculo__topo">
+                <span class="veiculo__placa" data-campo="placa"></span>
+                <span class="selo" data-campo="statusVeiculo"></span>
+            </header>
+
+            <p class="veiculo__relogio" data-campo="relogio" aria-label="Tempo de permanência">00:00:00</p>
+
+            <dl class="veiculo__dados">
+                <div><dt>Entrada</dt><dd data-campo="entrada">—</dd></div>
+                <div><dt>Tarifa</dt><dd data-campo="tarifa">—</dd></div>
+                <div><dt>Pagamento</dt><dd data-campo="pagamento">—</dd></div>
+            </dl>
+
+            <button type="button" class="botao botao--secundario" data-acao="detalhes">Ver detalhes</button>
+        </article>
+    </template>
+
+    <!-- Área das notificações de sucesso e erro -->
+    <div class="avisos" id="avisos" aria-live="polite"></div>
+
+    <script th:src="@{/js/painel.js}" defer></script>
 </body>
 </html>

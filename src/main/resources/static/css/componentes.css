@@ -1,0 +1,99 @@
+/* ===== Apresentação da página ===== */
+.apresentacao {
+    margin-bottom: 24px;
+}
+
+.apresentacao h1 {
+    margin: 0 0 6px;
+    font-size: 1.6rem;
+    color: var(--cor-principal);
+}
+
+.apresentacao p {
+    margin: 0;
+    color: var(--cor-texto-suave);
+    max-width: 60ch;
+}
+
+/* ===== Grade e cartões ===== */
+.grade-cartoes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--espaco);
+}
+
+.cartao {
+    background: var(--cor-cartao);
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio);
+    padding: 20px;
+    box-shadow: var(--sombra);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.cartao__numero {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--cor-destaque);
+}
+
+.cartao__titulo {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--cor-principal);
+}
+
+.cartao__texto {
+    margin: 0;
+    color: var(--cor-texto-suave);
+    font-size: 0.95rem;
+    flex: 1;
+}
+
+/* ===== Selos de situação ===== */
+.selo {
+    align-self: flex-start;
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    background: #eceff5;
+    color: var(--cor-texto-suave);
+}
+
+.selo--sucesso  { background: #e3f4ea; color: var(--cor-sucesso); }
+.selo--erro     { background: #fbe7e9; color: var(--cor-erro); }
+.selo--pendente { background: #fff1d9; color: var(--cor-pendente); }
+
+/* ===== Botões ===== */
+.botao {
+    display: inline-block;
+    font: inherit;
+    font-weight: 600;
+    padding: 12px 20px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--cor-principal);
+    color: #ffffff;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.botao:hover {
+    background: var(--cor-principal-clara);
+}
+
+/* ===== Aviso ===== */
+.aviso {
+    margin-top: 28px;
+    padding: 14px 16px;
+    border-left: 4px solid var(--cor-pendente);
+    background: #fff8ea;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: var(--cor-texto);
+}

@@ -57,12 +57,73 @@
                 <p class="nota">O cronômetro é apenas visual. A cobrança oficial é calculada pelo Java.</p>
             </section>
 
-            <!-- 3. PAGAMENTO -->
+            <!-- 3. VALIDAÇÃO DA COMPRA -->
+            <section class="bloco" aria-labelledby="titulo-validacao">
+                <h2 class="bloco__titulo" id="titulo-validacao">3. Validação da compra</h2>
+
+                <form id="form-nota" novalidate>
+                    <label class="rotulo" for="valor-compra">Valor da compra (R$)</label>
+                    <input class="campo" type="text" id="valor-compra" name="valor"
+                           inputmode="decimal" placeholder="100,00" autocomplete="off" disabled>
+
+                    <button type="submit" class="botao" id="botao-nota" disabled>Gerar nota fictícia</button>
+                </form>
+
+                <!-- O QR Code é gerado pelo Java; aqui só exibimos a imagem recebida -->
+                <div class="qr" id="area-qr" aria-live="polite">
+                    <p class="qr__vazio">O QR Code da nota, gerado pelo Java, aparecerá aqui.</p>
+                </div>
+
+                <h3 class="subtitulo">Ler cupom</h3>
+
+                <form id="form-cupom" novalidate>
+                    <label class="rotulo" for="codigo-cupom">Código do cupom</label>
+                    <input class="campo" type="text" id="codigo-cupom" name="codigo"
+                           autocomplete="off" autocapitalize="characters" spellcheck="false" disabled>
+
+                    <button type="submit" class="botao botao--secundario" id="botao-cupom" disabled>Verificar cupom</button>
+                </form>
+
+                <!-- Dados da nota consultada (consultar não consome a nota) -->
+                <dl class="dados" id="dados-cupom" hidden>
+                    <div><dt>Código</dt><dd id="cupom-codigo">—</dd></div>
+                    <div><dt>Valor</dt><dd id="cupom-valor">—</dd></div>
+                    <div><dt>Situação</dt><dd id="cupom-situacao">—</dd></div>
+                </dl>
+
+                <!-- Resultado da validação, definido pelo Java -->
+                <p class="resultado" id="resultado-validacao" role="status" aria-live="polite" hidden></p>
+
+                <p class="nota">Aguardando integração: o módulo de notas ainda não tem rotas HTTP. Regra de referência do grupo: compra a partir de R$ 50,00 concede gratuidade. Quem decide é o Java. Com o celular, a câmera lê o QR Code gerado pelo Java e abre a página de validação; ler pela câmera dentro do navegador exige HTTPS.</p>
+            </section>
+
+            <!-- 4. PAGAMENTO -->
             <section class="bloco" aria-labelledby="titulo-pagamento">
-                <h2 class="bloco__titulo" id="titulo-pagamento">3. Pagamento</h2>
+                <h2 class="bloco__titulo" id="titulo-pagamento">4. Pagamento</h2>
 
                 <button type="button" class="botao botao--secundario" disabled>Simular pagamento</button>
                 <p class="nota">Aguardando integração: ainda não existe rota HTTP de pagamento no sistema.</p>
+            </section>
+
+            <!-- 5. SAÍDA -->
+            <section class="bloco" aria-labelledby="titulo-saida">
+                <h2 class="bloco__titulo" id="titulo-saida">5. Saída</h2>
+
+                <p class="situacao-cancela">
+                    Cancela: <strong class="situacao-cancela__valor" id="situacao-cancela">FECHADA</strong>
+                </p>
+
+                <div class="prazo">
+                    <p class="prazo__rotulo">Tempo para sair</p>
+                    <p class="prazo__valor" id="contagem-saida" aria-live="off">--:--</p>
+                </div>
+
+                <button type="button" class="botao botao--secundario" id="botao-saida" disabled>Registrar saída</button>
+                <button type="button" class="botao botao--secundario" id="botao-passagem" disabled>Simular passagem</button>
+
+                <p class="mensagem" id="mensagem-saida" role="status" aria-live="polite" hidden></p>
+
+                <p class="nota">Aguardando integração: ainda não existe rota HTTP para liberar a cancela e registrar a saída. A contagem de 15 minutos (prazo combinado pelo grupo) começa quando o Java autorizar a saída, e o prazo oficial é controlado por ele.</p>
             </section>
 
         </div>

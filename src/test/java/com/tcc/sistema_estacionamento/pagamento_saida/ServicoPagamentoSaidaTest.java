@@ -231,6 +231,10 @@ class ServicoPagamentoSaidaTest {
                 StatusVeiculo.LIBERADO
         );
 
+        registroMock.setHorarioLiberacaoCancela(
+                LocalDateTime.now().minusMinutes(5)
+            );
+
         when(repositorio.findById(1L))
                 .thenReturn(Optional.of(registroMock));
 

@@ -1,92 +1,608 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
     <title>Estacionamento Digital</title>
-    <link rel="stylesheet" th:href="@{/css/estilo.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/estilo.css}">
+
+    <style>
+        [hidden] {
+            display: none !important;
+        }
+
+        #modal-detalhes {
+            width: min(94vw, 560px);
+            max-height: 88vh;
+            overflow-y: auto;
+        }
+
+        .secao-operacao {
+            margin-top: 20px;
+            padding-top: 18px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .secao-operacao h3 {
+            font-size: 18px;
+            margin: 0 0 10px;
+        }
+
+        .secao-operacao p {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #64748b;
+        }
+
+        .acoes-operacao {
+            display: grid;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .acoes-operacao .botao {
+            width: 100%;
+        }
+
+        .operacao-mensagem {
+            margin-top: 15px;
+            padding: 12px;
+            background: #eff6ff;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .prazo-saida {
+            margin: 14px 0;
+            padding: 14px;
+            border-radius: 12px;
+            background: #dcfce7;
+            color: #166534;
+            text-align: center;
+        }
+
+        .prazo-saida strong {
+            display: block;
+            font-size: 28px;
+            margin: 6px 0;
+        }
+
+        .prazo-saida.expirado {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .veiculo__prazo {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+            background: #dcfce7;
+            text-align: center;
+            color: #166534;
+        }
+
+        .veiculo__prazo strong {
+            display: block;
+            font-size: 20px;
+        }
+
+        .veiculo__prazo.expirado {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .selo[data-status="EXPIRADO"] {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .nota-fiscal__formulario {
+            display: grid;
+            gap: 10px;
+        }
+
+        .nota-fiscal__formulario input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+        }
+
+        .nota-fiscal__resultado {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            background: #f8fafc;
+            overflow-wrap: anywhere;
+        }
+
+        .nota-fiscal__imagem {
+            display: block;
+            width: 200px;
+            max-width: 100%;
+            margin: 14px auto;
+        }
+
+        .nota-fiscal__mensagem {
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .nota-fiscal__mensagem--erro {
+            color: #b91c1c;
+        }
+
+        .nota-fiscal__mensagem--sucesso {
+            color: #166534;
+        }
+    </style>
 </head>
+
 <body>
 
-    <header class="topo">
-        <div class="topo__interno">
-            <span class="marca__logo" aria-hidden="true">P</span>
-            <div>
-                <p class="marca__titulo">Estacionamento Digital</p>
-                <p class="marca__subtitulo">Protótipo Acadêmico — Engenharia de Software | UNA Aimorés</p>
-            </div>
-        </div>
-    </header>
+<header class="topo">
+    <div class="topo__interno">
 
-    <main class="conteudo conteudo--largo">
-        <section class="painel" aria-labelledby="titulo-patio">
+        <span class="marca__logo"
+              aria-hidden="true">P</span>
 
-            <div class="painel__topo">
-                <div>
-                    <h1 class="painel__titulo" id="titulo-patio">Veículos no pátio</h1>
-                    <p class="painel__contagem">
-                        <span id="contador-patio">0</span> veículo(s) ativo(s)
-                    </p>
-                </div>
-                <button type="button" class="botao botao--auto" id="botao-abrir-cadastro">Cadastrar veículo</button>
-            </div>
-
-            <p class="vazio" id="mensagem-vazio">
-                Nenhum veículo no pátio. Use "Cadastrar veículo" para registrar uma entrada.
+        <div>
+            <p class="marca__titulo">
+                Estacionamento Digital
             </p>
 
-            <!-- Os cards são criados pelo JavaScript a partir do modelo abaixo -->
-            <div class="grade-veiculos" id="grade-veiculos"></div>
+            <p class="marca__subtitulo">
+                Protótipo Acadêmico —
+                Engenharia de Software | UNA Aimorés
+            </p>
+        </div>
+
+    </div>
+</header>
+
+<main class="conteudo conteudo--largo">
+
+    <section class="painel"
+             aria-labelledby="titulo-patio">
+
+        <div class="painel__topo">
+
+            <div>
+                <h1 class="painel__titulo"
+                    id="titulo-patio">
+                    Veículos no pátio
+                </h1>
+
+                <p class="painel__contagem">
+                    <span id="contador-patio">0</span>
+                    veículo(s) ativo(s)
+                </p>
+            </div>
+
+            <button
+                type="button"
+                class="botao botao--auto"
+                id="botao-abrir-cadastro">
+                Cadastrar veículo
+            </button>
+
+        </div>
+
+        <p class="vazio"
+           id="mensagem-vazio">
+            Nenhum veículo no pátio.
+        </p>
+
+        <div class="grade-veiculos"
+             id="grade-veiculos"></div>
+
+    </section>
+
+</main>
+
+<!-- MODAL DE CADASTRO -->
+
+<dialog class="modal"
+        id="modal-cadastro"
+        aria-labelledby="titulo-cadastro">
+
+    <form id="form-entrada" novalidate>
+
+        <h2 class="modal__titulo"
+            id="titulo-cadastro">
+            Cadastrar veículo
+        </h2>
+
+        <label class="rotulo" for="placa">
+            Digite a placa do veículo
+        </label>
+
+        <div class="placa">
+            <span class="placa__faixa">
+                BRASIL
+            </span>
+
+            <input
+                class="placa__campo"
+                type="text"
+                id="placa"
+                name="placa"
+                placeholder="ABC1D23"
+                maxlength="8"
+                autocomplete="off"
+                required>
+        </div>
+
+        <p class="mensagem"
+           id="mensagem-cadastro"
+           role="alert"
+           hidden></p>
+
+        <div class="modal__acoes">
+
+            <button
+                type="button"
+                class="botao botao--secundario"
+                id="botao-cancelar-cadastro">
+                Cancelar
+            </button>
+
+            <button
+                type="submit"
+                class="botao"
+                id="botao-entrada">
+                Registrar entrada
+            </button>
+
+        </div>
+
+    </form>
+</dialog>
+
+<!-- MODELO DOS CARDS -->
+
+<template id="modelo-card">
+
+    <article class="veiculo">
+
+        <header class="veiculo__topo">
+
+            <span class="veiculo__placa"
+                  data-campo="placa"></span>
+
+            <span class="selo"
+                  data-campo="statusVeiculo"></span>
+
+        </header>
+
+        <p class="veiculo__relogio"
+           data-campo="relogio">
+            00:00:00
+        </p>
+
+        <div class="veiculo__prazo"
+             data-bloco="prazo"
+             hidden>
+
+            Tempo restante para sair
+
+            <strong data-campo="prazo">
+                00:15:00
+            </strong>
+
+        </div>
+
+        <dl class="veiculo__dados">
+
+            <div>
+                <dt>Entrada</dt>
+
+                <dd data-campo="entrada">
+                    —
+                </dd>
+            </div>
+
+            <div>
+                <dt>Tarifa</dt>
+
+                <dd data-campo="tarifa">
+                    —
+                </dd>
+            </div>
+
+            <div>
+                <dt>Pagamento</dt>
+
+                <dd data-campo="pagamento">
+                    —
+                </dd>
+            </div>
+
+        </dl>
+
+        <button
+            type="button"
+            class="botao botao--secundario"
+            data-acao="detalhes">
+            Ver detalhes
+        </button>
+
+    </article>
+
+</template>
+
+<!-- MODAL DE DETALHES -->
+
+<dialog class="modal"
+        id="modal-detalhes"
+        aria-labelledby="titulo-detalhes">
+
+    <h2 class="modal__titulo"
+        id="titulo-detalhes">
+        Detalhes do veículo
+    </h2>
+
+    <p>
+        Placa:
+        <strong id="detalhes-placa">—</strong>
+    </p>
+
+    <dl class="veiculo__dados">
+
+        <div>
+            <dt>Entrada</dt>
+            <dd id="detalhes-entrada">—</dd>
+        </div>
+
+        <div>
+            <dt>Permanência</dt>
+            <dd id="detalhes-tempo">00:00:00</dd>
+        </div>
+
+        <div>
+            <dt>Status</dt>
+            <dd id="detalhes-status">—</dd>
+        </div>
+
+        <div>
+            <dt>Pagamento</dt>
+            <dd id="detalhes-pagamento">—</dd>
+        </div>
+
+        <div>
+            <dt>Tarifa de estacionamento</dt>
+            <dd id="detalhes-tarifa">—</dd>
+        </div>
+
+    </dl>
+
+    <!-- VEÍCULO COM PAGAMENTO PENDENTE -->
+
+    <section
+        id="secao-pendente"
+        class="secao-operacao"
+        hidden>
+
+        <h3>Saída do estacionamento</h3>
+
+        <p id="informacao-gratuidade">
+            Verificando o tempo gratuito...
+        </p>
+
+        <div class="acoes-operacao">
+
+            <button
+                type="button"
+                class="botao"
+                id="botao-validar-gratuidade">
+                Sair gratuitamente
+            </button>
+
+        </div>
+
+        <!-- PAGAMENTO APÓS 15 MINUTOS -->
+
+        <div
+            id="area-pagamento"
+            class="secao-operacao"
+            hidden>
+
+            <h3>Pagamento do estacionamento</h3>
+
+            <p>
+                Após 15 minutos, faça um pagamento
+                simulado ou valide uma nota fiscal
+                elegível.
+            </p>
+
+            <button
+                type="button"
+                class="botao"
+                id="botao-pagar">
+                Consultar tarifa e simular pagamento PIX
+            </button>
+
+        </div>
+
+        <!-- NOTA FISCAL -->
+
+        <section
+            class="secao-operacao"
+            id="secao-nota">
+
+            <h3>Nota fiscal simulada</h3>
+
+            <p>
+                Compras a partir de R$ 50,00 podem
+                conceder isenção após validar o QR Code.
+            </p>
+
+            <form
+                id="form-nota-fiscal"
+                class="nota-fiscal__formulario">
+
+                <label for="valor-compra">
+                    Valor da compra (R$)
+                </label>
+
+                <input
+                    type="number"
+                    id="valor-compra"
+                    min="0.01"
+                    step="0.01"
+                    placeholder="50.00"
+                    required>
+
+                <button
+                    type="submit"
+                    class="botao"
+                    id="botao-gerar-nota">
+                    Gerar nota e QR Code
+                </button>
+
+            </form>
+
+            <p
+                id="mensagem-nota"
+                class="nota-fiscal__mensagem"
+                role="status"
+                hidden></p>
+
+            <div
+                id="resultado-nota"
+                class="nota-fiscal__resultado"
+                hidden>
+
+                <p>
+                    Código:
+                    <strong id="nota-codigo">—</strong>
+                </p>
+
+                <p>
+                    Valor:
+                    <strong id="nota-valor">—</strong>
+                </p>
+
+                <p>
+                    Emissão:
+                    <span id="nota-emissao">—</span>
+                </p>
+
+                <img
+                    id="nota-qrcode"
+                    class="nota-fiscal__imagem"
+                    alt="QR Code da nota fiscal"
+                    hidden>
+
+                <p id="mensagem-qrcode"></p>
+
+            </div>
 
         </section>
-    </main>
 
-    <!-- MODAL: cadastro de veículo -->
-    <dialog class="modal" id="modal-cadastro" aria-labelledby="titulo-cadastro">
-        <form id="form-entrada" novalidate>
-            <h2 class="modal__titulo" id="titulo-cadastro">Cadastrar veículo</h2>
+    </section>
 
-            <label class="rotulo" for="placa">Digite a placa do veículo</label>
+    <!-- PAGAMENTO APROVADO AINDA NÃO LIBERADO -->
 
-            <div class="placa">
-                <span class="placa__faixa">BRASIL</span>
-                <input class="placa__campo" type="text" id="placa" name="placa"
-                       placeholder="ABC1D23" maxlength="8"
-                       autocomplete="off" autocapitalize="characters" spellcheck="false">
-            </div>
+    <section
+        id="secao-autorizar"
+        class="secao-operacao"
+        hidden>
 
-            <p class="mensagem" id="mensagem-cadastro" role="alert" hidden></p>
+        <h3>Pagamento ou isenção aprovado</h3>
 
-            <div class="modal__acoes">
-                <button type="button" class="botao botao--secundario" id="botao-cancelar-cadastro">Cancelar</button>
-                <button type="submit" class="botao" id="botao-entrada">Registrar entrada</button>
-            </div>
-        </form>
-    </dialog>
+        <p>
+            Solicite a liberação da cancela virtual.
+        </p>
 
-    <!-- MODELO DO CARD: copiado pelo JavaScript para cada veículo -->
-    <template id="modelo-card">
-        <article class="veiculo">
-            <header class="veiculo__topo">
-                <span class="veiculo__placa" data-campo="placa"></span>
-                <span class="selo" data-campo="statusVeiculo"></span>
-            </header>
+        <button
+            type="button"
+            class="botao"
+            id="botao-liberar">
+            Liberar cancela
+        </button>
 
-            <p class="veiculo__relogio" data-campo="relogio" aria-label="Tempo de permanência">00:00:00</p>
+    </section>
 
-            <dl class="veiculo__dados">
-                <div><dt>Entrada</dt><dd data-campo="entrada">—</dd></div>
-                <div><dt>Tarifa</dt><dd data-campo="tarifa">—</dd></div>
-                <div><dt>Pagamento</dt><dd data-campo="pagamento">—</dd></div>
-            </dl>
+    <!-- VEÍCULO LIBERADO -->
 
-            <button type="button" class="botao botao--secundario" data-acao="detalhes">Ver detalhes</button>
-        </article>
-    </template>
+    <section
+        id="secao-liberado"
+        class="secao-operacao"
+        hidden>
 
-    <!-- Área das notificações de sucesso e erro -->
-    <div class="avisos" id="avisos" aria-live="polite"></div>
+        <h3>Estacionamento validado</h3>
 
-    <script th:src="@{/js/painel.js}" defer></script>
+        <div
+            class="prazo-saida"
+            id="bloco-prazo">
+
+            Tempo disponível para sair
+
+            <strong id="detalhes-prazo">
+                00:15:00
+            </strong>
+
+        </div>
+
+        <p id="informacao-saida">
+            A cancela está liberada.
+        </p>
+
+        <button
+            type="button"
+            class="botao"
+            id="botao-finalizar-saida">
+            Finalizar saída
+        </button>
+
+        <button
+            type="button"
+            class="botao"
+            id="botao-renovar-saida"
+            hidden>
+            Simular renovação PIX — R$ 10,00
+        </button>
+
+    </section>
+
+    <!-- MENSAGENS DAS OPERAÇÕES -->
+
+    <p
+        id="mensagem-operacao"
+        class="operacao-mensagem"
+        role="status"
+        aria-live="polite"
+        hidden></p>
+
+    <div class="modal__acoes">
+
+        <button
+            type="button"
+            class="botao botao--secundario"
+            id="botao-fechar-detalhes">
+            Fechar
+        </button>
+
+    </div>
+
+</dialog>
+
+<div
+    class="avisos"
+    id="avisos"
+    aria-live="polite"></div>
+
+<script
+    th:src="@{/js/painel.js}"
+    defer></script>
+
 </body>
 </html>

@@ -1,0 +1,633 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Validar estacionamento</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            background: #f1f5f9;
+            color: #0f172a;
+            font-family: Arial, sans-serif;
+        }
+
+        .pagina {
+            max-width: 430px;
+            margin: 20px auto;
+        }
+
+        .cabecalho {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .logo {
+            width: 58px;
+            height: 58px;
+            margin: 0 auto 12px;
+            border-radius: 16px;
+            background: #2563eb;
+            color: white;
+            display: grid;
+            place-items: center;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        h1 {
+            margin: 8px 0;
+            font-size: 23px;
+        }
+
+        .subtitulo {
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .cartao {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, .07);
+        }
+
+        h2 {
+            font-size: 18px;
+            margin: 0 0 18px;
+        }
+
+        .linha {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .rotulo {
+            color: #64748b;
+        }
+
+        .valor {
+            font-weight: 700;
+            text-align: right;
+        }
+
+        .divisor {
+            border: 0;
+            border-top: 1px solid #e2e8f0;
+            margin: 22px 0;
+        }
+
+        .situacao {
+            text-align: center;
+            padding: 15px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .situacao--aprovada {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .situacao--pendente {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .situacao--erro {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .situacao strong {
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .situacao p {
+            margin: 0;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .campo {
+            display: block;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 19px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        input:focus {
+            outline: 2px solid #2563eb;
+            outline-offset: 2px;
+        }
+
+        .botao {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-top: 18px;
+            border: 0;
+            border-radius: 10px;
+            background: #2563eb;
+            color: white;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .botao:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .botao-secundario {
+            background: #475569;
+        }
+
+        .observacao {
+            margin-top: 15px;
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .codigo {
+            font-size: 11px;
+            overflow-wrap: anywhere;
+        }
+
+        .rodape {
+            margin-top: 24px;
+            font-size: 12px;
+            text-align: center;
+            color: #94a3b8;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+
+<main class="pagina">
+
+    <header class="cabecalho">
+        <div class="logo">P</div>
+
+        <h1>Validar estacionamento</h1>
+
+        <p class="subtitulo">
+            Sistema de Estacionamento Digital
+        </p>
+    </header>
+
+    <!-- NOTA NÃO ENCONTRADA -->
+    <section class="cartao"
+             th:if="${!notaDisponivel}">
+
+        <div class="situacao situacao--erro">
+            <strong>
+                Nota fiscal não encontrada
+            </strong>
+
+            <p th:text="${erro}">
+                Código inválido.
+            </p>
+        </div>
+
+        <p class="observacao">
+            Confira o QR Code e tente novamente.
+        </p>
+    </section>
+
+    <!-- NOTA ENCONTRADA -->
+    <section class="cartao"
+             th:if="${notaDisponivel}">
+
+        <h2>Dados da nota fiscal</h2>
+
+        <div class="linha">
+            <span class="rotulo">
+                Valor da compra
+            </span>
+
+            <span class="valor"
+                  th:text="${valorCompra}">
+                R$ 0,00
+            </span>
+        </div>
+
+        <div class="linha">
+            <span class="rotulo">
+                Valor mínimo para isenção
+            </span>
+
+            <span class="valor"
+                  th:text="${valorMinimo}">
+                R$ 50,00
+            </span>
+        </div>
+
+        <div class="linha">
+            <span class="rotulo">
+                Emissão
+            </span>
+
+            <span class="valor"
+                  th:text="${horarioEmissao}">
+                —
+            </span>
+        </div>
+
+        <div class="linha">
+            <span class="rotulo">
+                Código da nota
+            </span>
+
+            <span class="valor codigo"
+                  th:text="${codigoNota}">
+                —
+            </span>
+        </div>
+
+        <!-- NOTA ELEGÍVEL -->
+        <div class="situacao situacao--aprovada"
+             th:if="${elegivel}">
+
+            <strong>
+                Compra elegível à isenção
+            </strong>
+
+            <p>
+                Sua compra atende à regra de R$ 50,00.
+                Informe a placa para solicitar
+                a validação do estacionamento.
+            </p>
+        </div>
+
+        <!-- VALOR INSUFICIENTE -->
+        <div class="situacao situacao--pendente"
+             th:if="${!elegivel and !utilizada}">
+
+            <strong>
+                Compra abaixo de R$ 50,00
+            </strong>
+
+            <p>
+                Esta nota não atende à regra de isenção.
+
+                Você poderá sair gratuitamente se
+                ainda estiver dentro dos 15 minutos
+                de tolerância ou realizar o pagamento
+                da tarifa.
+            </p>
+        </div>
+
+        <!-- NOTA JÁ UTILIZADA -->
+        <div class="situacao situacao--erro"
+             th:if="${utilizada}">
+
+            <strong>
+                Nota fiscal já utilizada
+            </strong>
+
+            <p>
+                Esta nota não pode ser utilizada
+                novamente para conceder isenção.
+            </p>
+        </div>
+
+        <!-- FORMULÁRIO PARA NOTA ELEGÍVEL -->
+        <form id="form-validacao"
+              th:if="${elegivel}">
+
+            <hr class="divisor">
+
+            <h2>Identificar o veículo</h2>
+
+            <input type="hidden"
+                   id="codigo-nota"
+                   th:value="${codigoNota}">
+
+            <label class="campo" for="placa">
+                Digite a placa do veículo
+            </label>
+
+            <input
+                type="text"
+                id="placa"
+                name="placa"
+                maxlength="7"
+                minlength="7"
+                placeholder="ABC1D23"
+                autocomplete="off"
+                autocapitalize="characters"
+                spellcheck="false"
+                required>
+
+            <button type="submit"
+                    class="botao"
+                    id="botao-validar">
+
+                Confirmar validação
+            </button>
+        </form>
+
+        <!-- RESULTADO DA VALIDAÇÃO -->
+        <div id="resultado-validacao"
+             class="situacao"
+             role="status"
+             aria-live="polite"
+             hidden>
+
+            <strong id="resultado-titulo"></strong>
+
+            <p id="resultado-mensagem"></p>
+        </div>
+
+        <p class="observacao">
+            A liberação depende da validação
+            das regras pelo sistema.
+        </p>
+    </section>
+
+    <!-- LINK ALTERNATIVO -->
+    <a id="link-opcoes-saida"
+       class="botao botao-secundario"
+       href="/estacionamento/mobile">
+
+        Voltar às opções de saída
+    </a>
+
+    <footer class="rodape">
+        Protótipo acadêmico — Engenharia de Software
+    </footer>
+
+</main>
+
+<script>
+(function () {
+    "use strict";
+
+    const formulario =
+        document.getElementById("form-validacao");
+
+    const linkVoltar =
+        document.getElementById("link-opcoes-saida");
+
+    const parametros =
+        new URLSearchParams(window.location.search);
+
+    const placaURL =
+        (parametros.get("placa") || "")
+            .trim()
+            .toUpperCase();
+
+    // Mantém a placa ao voltar manualmente,
+    // quando ela tiver sido informada pela URL.
+    function enderecoMobile(placa) {
+        const endereco =
+            new URL("/estacionamento/mobile", location.origin);
+
+        if (placa) {
+            endereco.searchParams.set("placa", placa);
+        }
+
+        return endereco.pathname + endereco.search;
+    }
+
+    if (placaURL) {
+        linkVoltar.href = enderecoMobile(placaURL);
+    }
+
+    // Notas insuficientes, inexistentes ou
+    // utilizadas não possuem formulário ativo.
+    if (!formulario) {
+        return;
+    }
+
+    const campoPlaca =
+        document.getElementById("placa");
+
+    const codigoNota =
+        document.getElementById("codigo-nota");
+
+    const botaoValidar =
+        document.getElementById("botao-validar");
+
+    const resultado =
+        document.getElementById("resultado-validacao");
+
+    const resultadoTitulo =
+        document.getElementById("resultado-titulo");
+
+    const resultadoMensagem =
+        document.getElementById("resultado-mensagem");
+
+    let validacaoConcluida = false;
+
+    // Se a placa veio na URL,
+    // já aparece preenchida.
+    if (placaURL) {
+        campoPlaca.value = placaURL;
+    }
+
+    function mostrarResultado(titulo, mensagem, tipo) {
+        resultado.className =
+            "situacao situacao--" + tipo;
+
+        resultadoTitulo.textContent = titulo;
+        resultadoMensagem.textContent = mensagem;
+
+        resultado.hidden = false;
+    }
+
+    // Deixa a placa em maiúsculas.
+    campoPlaca.addEventListener("input", function () {
+        campoPlaca.value =
+            campoPlaca.value.toUpperCase();
+    });
+
+    // ========================================
+    // VALIDAÇÃO DA NOTA FISCAL
+    // ========================================
+
+    formulario.addEventListener(
+        "submit",
+        async function (evento) {
+
+            evento.preventDefault();
+
+            if (validacaoConcluida) {
+                return;
+            }
+
+            const placa = campoPlaca.value
+                .trim()
+                .toUpperCase();
+
+            const formatoPlaca =
+                /^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$/;
+
+            if (!formatoPlaca.test(placa)) {
+                mostrarResultado(
+                    "Placa inválida",
+                    "Informe uma placa brasileira válida.",
+                    "erro"
+                );
+
+                return;
+            }
+
+            botaoValidar.disabled = true;
+            botaoValidar.textContent = "Validando...";
+
+            resultado.hidden = true;
+
+            try {
+                // Envia placa e nota ao Spring Boot.
+                const resposta = await fetch(
+                    "/validacoes/nota",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/x-www-form-urlencoded"
+                        },
+
+                        body: new URLSearchParams({
+                            codigoNota: codigoNota.value,
+                            placa: placa
+                        })
+                    }
+                );
+
+                const dados = await resposta.json();
+
+                if (!resposta.ok) {
+                    mostrarResultado(
+                        "Validação não autorizada",
+                        dados.erro ||
+                        dados.detail ||
+                        dados.message ||
+                        "Não foi possível validar o estacionamento.",
+                        "erro"
+                    );
+
+                    return;
+                }
+
+                // O backend precisa confirmar
+                // a isenção e a liberação.
+                if (
+                    dados.statusPagamento !== "ISENTO" ||
+                    dados.statusVeiculo !== "LIBERADO"
+                ) {
+                    mostrarResultado(
+                        "Verifique a validação",
+                        "O servidor não confirmou " +
+                        "a liberação da cancela.",
+                        "pendente"
+                    );
+
+                    return;
+                }
+
+                // ========================================
+                // VALIDAÇÃO APROVADA
+                // ========================================
+
+                validacaoConcluida = true;
+
+                mostrarResultado(
+                    "Estacionamento validado!",
+                    "Placa " + placa +
+                    ". Isenção aplicada e cancela " +
+                    "virtual liberada. " +
+                    "Voltando à página de saída...",
+                    "aprovada"
+                );
+
+                botaoValidar.textContent =
+                    "Validação concluída";
+
+                campoPlaca.disabled = true;
+
+                // Link de retorno manual,
+                // caso a navegação seja interrompida.
+                const destino = enderecoMobile(placa);
+
+                linkVoltar.href = destino;
+                linkVoltar.textContent =
+                    "Voltar à saída liberada";
+
+                // ========================================
+                // NOVO: RETORNO AUTOMÁTICO
+                // ========================================
+
+                setTimeout(function () {
+                    window.location.replace(destino);
+                }, 1500);
+
+            } catch (erro) {
+                console.error(
+                    "Falha na validação:",
+                    erro
+                );
+
+                mostrarResultado(
+                    "Erro de comunicação",
+                    "Não foi possível confirmar " +
+                    "a operação. Confira a situação " +
+                    "do veículo antes de tentar novamente.",
+                    "erro"
+                );
+
+            } finally {
+                if (!validacaoConcluida) {
+                    botaoValidar.disabled = false;
+                    botaoValidar.textContent =
+                        "Confirmar validação";
+                }
+            }
+        }
+    );
+})();
+</script>
+
+</body>
+</html>

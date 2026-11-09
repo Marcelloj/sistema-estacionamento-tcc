@@ -1,0 +1,1076 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Saída do Estacionamento</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #f1f5f9;
+            color: #0f172a;
+            font-family: Arial, sans-serif;
+        }
+
+        main {
+            max-width: 480px;
+            margin: 12px auto;
+        }
+
+        .cartao {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 5px 20px #00000010;
+        }
+
+        h1 {
+            font-size: 25px;
+            margin: 0 0 14px;
+        }
+
+        h2 {
+            font-size: 19px;
+            margin: 0 0 14px;
+        }
+
+        h3 {
+            font-size: 16px;
+            margin: 0 0 10px;
+        }
+
+        p {
+            line-height: 1.5;
+        }
+
+        .subtitulo {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin: 10px 0 7px;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #cbd5e1;
+            border-radius: 9px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 11px;
+            border: none;
+            border-radius: 10px;
+            background: #1d4ed8;
+            color: white;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            opacity: .55;
+            cursor: not-allowed;
+        }
+
+        .verde {
+            background: #15803d;
+        }
+
+        .laranja {
+            background: #c2410c;
+        }
+
+        .cinza {
+            background: #475569;
+        }
+
+        .linha {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .linha span {
+            color: #64748b;
+        }
+
+        .linha strong {
+            text-align: right;
+        }
+
+        .mensagem {
+            margin-top: 16px;
+            padding: 13px;
+            border-radius: 10px;
+            background: #eff6ff;
+            line-height: 1.5;
+        }
+
+        .mensagem.erro {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .mensagem.sucesso {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .relogio {
+            background: #dcfce7;
+            color: #166534;
+            border-radius: 12px;
+            padding: 18px;
+            text-align: center;
+            margin-top: 16px;
+        }
+
+        .relogio.expirado {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .relogio strong {
+            display: block;
+            font-size: 30px;
+            margin-top: 8px;
+        }
+
+        .separador {
+            color: #64748b;
+            text-align: center;
+            font-size: 13px;
+            margin: 16px 0;
+        }
+
+        .nota {
+            margin-top: 18px;
+            padding-top: 18px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .instrucao-qr {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 16px 0;
+        }
+
+        .icone-camera {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .instrucao-qr strong {
+            display: block;
+            color: #1e40af;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .instrucao-qr p {
+            margin: 0;
+            color: #334155;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+
+<body>
+
+<main>
+
+    <!-- CONSULTA DA PLACA -->
+    <section class="cartao">
+
+        <h1>Saída do estacionamento</h1>
+
+        <p class="subtitulo">
+            Consulte sua placa para validar uma nota fiscal,
+            simular o pagamento ou finalizar a saída.
+        </p>
+
+        <form id="form-consulta">
+
+            <label for="placa">
+                Placa do veículo
+            </label>
+
+            <input
+                id="placa"
+                type="text"
+                placeholder="ABC1D23"
+                maxlength="8"
+                autocomplete="off"
+                required>
+
+            <button id="botao-consultar" type="submit">
+                Consultar estacionamento
+            </button>
+
+        </form>
+
+        <div
+            id="mensagem"
+            class="mensagem"
+            role="status"
+            aria-live="polite"
+            hidden>
+        </div>
+
+    </section>
+
+    <!-- RESULTADO DA CONSULTA -->
+    <section class="cartao" id="resultado" hidden>
+
+        <h2>Dados do veículo</h2>
+
+        <div class="linha">
+            <span>Placa</span>
+            <strong id="info-placa">—</strong>
+        </div>
+
+        <div class="linha">
+            <span>Status</span>
+            <strong id="info-status">—</strong>
+        </div>
+
+        <div class="linha">
+            <span>Pagamento</span>
+            <strong id="info-pagamento">—</strong>
+        </div>
+
+        <div class="linha">
+            <span>Tarifa</span>
+            <strong id="info-tarifa">—</strong>
+        </div>
+
+        <!-- CONTADOR DE SAÍDA -->
+        <div class="relogio" id="area-relogio" hidden>
+
+            Prazo para sair
+
+            <strong id="tempo-restante">
+                00:15:00
+            </strong>
+
+        </div>
+
+        <p id="orientacao" class="subtitulo"></p>
+
+        <!-- SAÍDA GRATUITA -->
+        <button
+            id="botao-gratuidade"
+            type="button"
+            class="verde"
+            hidden>
+            Sair gratuitamente
+        </button>
+
+        <!-- PAGAMENTO E VALIDAÇÃO -->
+        <section id="area-pagamento" hidden>
+
+            <button id="botao-pagamento" type="button">
+                Simular pagamento PIX
+            </button>
+
+            <div class="nota">
+
+                <h3>Possui uma nota fiscal?</h3>
+
+                <p class="subtitulo">
+                    Compras de R$ 50,00 ou mais
+                    podem conceder isenção do estacionamento.
+                </p>
+
+                <!-- ORIENTAÇÃO PARA LER QR CODE -->
+                <div class="instrucao-qr">
+
+                    <span class="icone-camera">📷</span>
+
+                    <div>
+                        <strong>
+                            Validar pelo QR Code
+                        </strong>
+
+                        <p>
+                            Abra a câmera do seu celular,
+                            leia o QR Code da nota fiscal
+                            e acesse o link para validar.
+                        </p>
+                    </div>
+
+                </div>
+
+                <p class="separador">
+                    OU
+                </p>
+
+                <!-- VALIDAÇÃO MANUAL -->
+                <label for="codigo-nota">
+                    Coloque o código da nota
+                </label>
+
+                <input
+                    type="text"
+                    id="codigo-nota"
+                    placeholder="Digite o código da nota"
+                    autocomplete="off">
+
+                <button
+                    id="botao-validar-nota"
+                    type="button">
+                    Validar nota fiscal
+                </button>
+
+            </div>
+
+        </section>
+
+        <!-- LIBERAR CANCELA -->
+        <button
+            id="botao-liberar"
+            type="button"
+            hidden>
+            Liberar cancela
+        </button>
+
+        <!-- FINALIZAR SAÍDA -->
+        <button
+            id="botao-finalizar"
+            type="button"
+            class="verde"
+            hidden>
+            Finalizar saída
+        </button>
+
+        <!-- RENOVAÇÃO -->
+        <button
+            id="botao-renovar"
+            type="button"
+            class="laranja"
+            hidden>
+            Renovar saída — R$ 10,00
+        </button>
+
+        <button
+            id="botao-atualizar"
+            type="button"
+            class="cinza">
+            Atualizar consulta
+        </button>
+
+    </section>
+
+</main>
+
+<script>
+(function () {
+
+    "use strict";
+
+    const $ = id => document.getElementById(id);
+
+    const LIMITE_MS = 15 * 60 * 1000;
+
+    const parametros =
+        new URLSearchParams(window.location.search);
+
+    let registro = null;
+    let operando = false;
+    let consultando = false;
+
+    // ====================================
+    // DADOS RECEBIDOS PELA URL
+    // ====================================
+
+    $("placa").value =
+        (parametros.get("placa") || "").toUpperCase();
+
+    $("codigo-nota").value =
+        parametros.get("codigoNota") || "";
+
+    $("placa").addEventListener("input", () => {
+        $("placa").value =
+            $("placa").value.toUpperCase();
+    });
+
+    // ====================================
+    // FUNÇÕES AUXILIARES
+    // ====================================
+
+    function mostrar(texto, tipo = "") {
+
+        $("mensagem").hidden = false;
+
+        $("mensagem").className =
+            "mensagem " + tipo;
+
+        $("mensagem").textContent = texto;
+    }
+
+    function moeda(valor) {
+
+        return Number(valor || 0).toLocaleString(
+            "pt-BR",
+            {
+                style: "currency",
+                currency: "BRL"
+            }
+        );
+    }
+
+    function data(valor) {
+
+        if (Array.isArray(valor)) {
+
+            return new Date(
+                valor[0],
+                valor[1] - 1,
+                valor[2],
+                valor[3] || 0,
+                valor[4] || 0,
+                valor[5] || 0
+            );
+        }
+
+        return valor ? new Date(valor) : null;
+    }
+
+    function tempo(ms) {
+
+        const segundos = Math.max(
+            0,
+            Math.floor(ms / 1000)
+        );
+
+        return [
+            Math.floor(segundos / 3600),
+            Math.floor(segundos / 60) % 60,
+            segundos % 60
+        ]
+            .map(n => String(n).padStart(2, "0"))
+            .join(":");
+    }
+
+    // ====================================
+    // PRAZO DE SAÍDA
+    // ====================================
+
+    function restante() {
+
+        const horario = data(
+            registro?.horarioLiberacaoCancela
+        );
+
+        if (
+            !horario ||
+            Number.isNaN(horario.getTime())
+        ) {
+            return 0;
+        }
+
+        return Math.max(
+            0,
+            horario.getTime() +
+            LIMITE_MS -
+            Date.now()
+        );
+    }
+
+    // ====================================
+    // TOLERÂNCIA GRATUITA
+    // ====================================
+
+    function gratuito() {
+
+        if (!registro?.gratuidadeDisponivel) {
+            return false;
+        }
+
+        const entrada =
+            data(registro.horarioEntrada);
+
+        return (
+            entrada &&
+            !Number.isNaN(entrada.getTime()) &&
+            Date.now() <
+            entrada.getTime() + LIMITE_MS
+        );
+    }
+
+    // ====================================
+    // ATUALIZAR INTERFACE
+    // ====================================
+
+    function atualizarTela() {
+
+        $("resultado").hidden = !registro;
+
+        if (!registro) {
+            return;
+        }
+
+        const estacionado =
+            registro.statusVeiculo === "ESTACIONADO";
+
+        const liberado =
+            registro.statusVeiculo === "LIBERADO";
+
+        const pendente =
+            registro.statusPagamento === "PENDENTE";
+
+        $("info-placa").textContent =
+            registro.placa;
+
+        $("info-pagamento").textContent =
+            registro.statusPagamento;
+
+        $("info-tarifa").textContent =
+            registro.statusPagamento === "ISENTO"
+                ? "R$ 0,00 (isento)"
+                : moeda(registro.tarifa);
+
+        [
+            "botao-gratuidade",
+            "area-pagamento",
+            "botao-liberar",
+            "botao-finalizar",
+            "botao-renovar"
+        ].forEach(id => {
+            $(id).hidden = true;
+        });
+
+        $("area-relogio").hidden = !liberado;
+
+        // ESTACIONADO COM PAGAMENTO PENDENTE
+        if (estacionado && pendente) {
+
+            $("info-status").textContent =
+                "Estacionado";
+
+            if (gratuito()) {
+
+                $("botao-gratuidade").hidden = false;
+
+                $("orientacao").textContent =
+                    "Você está dentro dos 15 minutos " +
+                    "gratuitos. A saída pode ser " +
+                    "finalizada sem pagamento.";
+
+            } else {
+
+                $("area-pagamento").hidden = false;
+
+                $("orientacao").textContent =
+                    "O prazo gratuito terminou. " +
+                    "Pague a tarifa ou valide " +
+                    "uma nota fiscal elegível.";
+            }
+
+        // PAGAMENTO APROVADO
+        } else if (estacionado && !pendente) {
+
+            $("info-status").textContent =
+                "Aguardando liberação";
+
+            $("botao-liberar").hidden = false;
+
+            $("orientacao").textContent =
+                "Pagamento ou isenção aprovado. " +
+                "Libere a cancela.";
+
+        // SAÍDA LIBERADA
+        } else if (liberado) {
+
+            const ms = restante();
+            const expirou = ms === 0;
+
+            $("info-status").textContent =
+                expirou
+                    ? "Validade expirada"
+                    : "Liberado";
+
+            $("tempo-restante").textContent =
+                tempo(ms);
+
+            $("area-relogio").classList.toggle(
+                "expirado",
+                expirou
+            );
+
+            $("botao-finalizar").hidden =
+                expirou;
+
+            $("botao-renovar").hidden =
+                !expirou;
+
+            $("orientacao").textContent =
+                expirou
+                    ? "A autorização de saída venceu. " +
+                      "Renove por R$ 10,00."
+                    : "Saída autorizada. " +
+                      "Finalize dentro de 15 minutos.";
+
+        } else {
+
+            $("info-status").textContent =
+                registro.statusVeiculo;
+
+            $("orientacao").textContent =
+                "Consulte o operador.";
+        }
+
+        [
+            "botao-gratuidade",
+            "botao-pagamento",
+            "botao-validar-nota",
+            "botao-liberar",
+            "botao-finalizar",
+            "botao-renovar"
+        ].forEach(id => {
+
+            $(id).disabled = operando;
+        });
+    }
+
+    // ====================================
+    // LER RESPOSTA HTTP
+    // ====================================
+
+    async function lerResposta(resposta) {
+
+        const texto = await resposta.text();
+
+        if (!texto) {
+            return {};
+        }
+
+        try {
+            return JSON.parse(texto);
+
+        } catch (_) {
+
+            return {
+                mensagem: texto
+            };
+        }
+    }
+
+    // ====================================
+    // CONSULTAR VEÍCULO
+    // ====================================
+
+    async function consultar(mostrarErro = true) {
+
+        if (consultando || operando) {
+            return;
+        }
+
+        const placa = $("placa")
+            .value.trim().toUpperCase();
+
+        if (!placa) {
+
+            if (mostrarErro) {
+                mostrar(
+                    "Informe a placa do veículo.",
+                    "erro"
+                );
+            }
+
+            return;
+        }
+
+        consultando = true;
+
+        try {
+
+            const resposta = await fetch(
+                "/api/mobile/consultar?placa=" +
+                encodeURIComponent(placa),
+                {
+                    cache: "no-store"
+                }
+            );
+
+            const dados =
+                await lerResposta(resposta);
+
+            if (!resposta.ok) {
+
+                throw new Error(
+                    dados.erro ||
+                    dados.detail ||
+                    dados.message ||
+                    "Placa não encontrada."
+                );
+            }
+
+            registro = dados;
+
+            atualizarTela();
+
+            if (mostrarErro) {
+                $("mensagem").hidden = true;
+            }
+
+        } catch (erro) {
+
+            if (mostrarErro) {
+
+                registro = null;
+
+                atualizarTela();
+
+                mostrar(
+                    erro.message,
+                    "erro"
+                );
+
+            } else {
+                console.error(erro);
+            }
+
+        } finally {
+
+            consultando = false;
+        }
+    }
+
+    // ====================================
+    // EXECUTAR OPERAÇÃO
+    // ====================================
+
+    async function executar(url, dadosForm = null) {
+
+        if (!registro || operando) {
+            return;
+        }
+
+        operando = true;
+        atualizarTela();
+
+        try {
+
+            const resposta = await fetch(url, {
+
+                method: "POST",
+
+                headers: dadosForm
+                    ? {
+                        "Content-Type":
+                            "application/x-www-form-urlencoded"
+                      }
+                    : {},
+
+                body: dadosForm
+                    ? new URLSearchParams(dadosForm)
+                    : undefined
+            });
+
+            const dados =
+                await lerResposta(resposta);
+
+            if (!resposta.ok) {
+
+                throw new Error(
+                    dados.erro ||
+                    dados.detail ||
+                    dados.message ||
+                    "Operação não autorizada."
+                );
+            }
+
+            const finalizou =
+                url.endsWith("/gratuidade") ||
+                url.endsWith("/finalizar");
+
+            if (finalizou) {
+
+                registro = null;
+
+                atualizarTela();
+
+                mostrar(
+                    "Saída finalizada! " +
+                    "Veículo retirado do pátio.",
+                    "sucesso"
+                );
+
+            } else {
+
+                mostrar(
+                    dados.mensagem ||
+                    "Operação realizada com sucesso.",
+                    "sucesso"
+                );
+            }
+
+        } catch (erro) {
+
+            mostrar(
+                erro.message,
+                "erro"
+            );
+
+        } finally {
+
+            operando = false;
+
+            if (registro) {
+                await consultar(false);
+            }
+
+            atualizarTela();
+        }
+    }
+
+    // ====================================
+    // VALIDAR NOTA FISCAL MANUALMENTE
+    // ====================================
+
+    async function validarNota() {
+
+        if (!registro || operando) {
+            return;
+        }
+
+        const codigo = $("codigo-nota")
+            .value.trim();
+
+        if (!codigo) {
+
+            mostrar(
+                "Informe o código da nota fiscal.",
+                "erro"
+            );
+
+            return;
+        }
+
+        // O backend verifica o valor mínimo,
+        // a utilização anterior e a placa.
+        await executar(
+            "/validacoes/nota",
+            {
+                codigoNota: codigo,
+                placa: registro.placa
+            }
+        );
+    }
+
+    $("botao-validar-nota").addEventListener(
+        "click",
+        validarNota
+    );
+
+    // ====================================
+    // CONSULTA
+    // ====================================
+
+    $("form-consulta").addEventListener(
+        "submit",
+        evento => {
+
+            evento.preventDefault();
+
+            consultar();
+        }
+    );
+
+    $("botao-atualizar").addEventListener(
+        "click",
+        () => consultar()
+    );
+
+    // ====================================
+    // SAÍDA GRATUITA
+    // ====================================
+
+    $("botao-gratuidade").addEventListener(
+        "click",
+        () => {
+
+            executar(
+                "/operacoes/" +
+                registro.idRegistro +
+                "/gratuidade"
+            );
+        }
+    );
+
+    // ====================================
+    // LIBERAR CANCELA
+    // ====================================
+
+    $("botao-liberar").addEventListener(
+        "click",
+        () => {
+
+            executar(
+                "/saidas/" +
+                registro.idRegistro +
+                "/liberar"
+            );
+        }
+    );
+
+    // ====================================
+    // FINALIZAR SAÍDA
+    // ====================================
+
+    $("botao-finalizar").addEventListener(
+        "click",
+        () => {
+
+            executar(
+                "/saidas/" +
+                registro.idRegistro +
+                "/finalizar"
+            );
+        }
+    );
+
+    // ====================================
+    // RENOVAR SAÍDA
+    // ====================================
+
+    $("botao-renovar").addEventListener(
+        "click",
+        () => {
+
+            executar(
+                "/operacoes/" +
+                registro.idRegistro +
+                "/renovar"
+            );
+        }
+    );
+
+    // ====================================
+    // PAGAMENTO PIX SIMULADO
+    // ====================================
+
+    $("botao-pagamento").addEventListener(
+        "click",
+        async () => {
+
+            if (!registro || operando) {
+                return;
+            }
+
+            const id = registro.idRegistro;
+
+            try {
+
+                const resposta = await fetch(
+                    "/tarifas/" + id,
+                    {
+                        cache: "no-store"
+                    }
+                );
+
+                const dados =
+                    await lerResposta(resposta);
+
+                if (!resposta.ok) {
+
+                    throw new Error(
+                        dados.erro ||
+                        "Não consegui consultar a tarifa."
+                    );
+                }
+
+                const valor = Number(
+                    dados.valorPendente ??
+                    dados.tarifaCalculada
+                );
+
+                if (
+                    !Number.isFinite(valor) ||
+                    valor <= 0
+                ) {
+
+                    throw new Error(
+                        "Tarifa indisponível para pagamento."
+                    );
+                }
+
+                await executar(
+                    "/operacoes/" +
+                    id +
+                    "/pagamento",
+                    {
+                        valorPago: valor.toFixed(2)
+                    }
+                );
+
+            } catch (erro) {
+
+                mostrar(
+                    erro.message,
+                    "erro"
+                );
+            }
+        }
+    );
+
+    // ====================================
+    // ATUALIZAÇÃO AUTOMÁTICA
+    // ====================================
+
+    // Atualiza o contador a cada segundo.
+    setInterval(atualizarTela, 1000);
+
+    // Atualiza os dados do servidor
+    // a cada cinco segundos.
+    setInterval(() => {
+
+        if (registro && !operando) {
+            consultar(false);
+        }
+
+    }, 5000);
+
+    // Se a página receber uma placa pela URL,
+    // consulta automaticamente.
+    if ($("placa").value.trim()) {
+        consultar();
+    }
+
+})();
+</script>
+
+</body>
+</html>

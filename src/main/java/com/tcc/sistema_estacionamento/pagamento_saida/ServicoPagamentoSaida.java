@@ -22,103 +22,142 @@ import java.util.UUID;
 @Service
 public class ServicoPagamentoSaida {
 
-        private final RegistroEstacionamentoRepositorio repositorio;
-        private final ServicoCalculoPermanencia servicoCalculo;
-        
-        public ServicoPagamentoSaida(
-                RegistroEstacionamentoRepositorio repositorio,
-                ServicoCalculoPermanencia servicoCalculo) {
-        
-            this.repositorio = repositorio;
-            this.servicoCalculo = servicoCalculo;
-        }
+    private final RegistroEstacionamentoRepositorio repositorio;
+    private final ServicoCalculoPermanencia servicoCalculo;
 
-    // Método simplificado para simular pagamento via PIX.
+    // Serviço sem dependências externas, responsável pelo prazo.
+    // Mantemos o construtor original para compatibilidade com os testes.
+    private final ServicoPrazoSaida servicoPrazoSaida =
+            new ServicoPrazoSaida();
+
+    public ServicoPagamentoSaida(
+            RegistroEstacionamentoRepositorio repositorio,
+            ServicoCalculoPermanencia servicoCalculo) {
+
+        this.repositorio = repositorio;
+        this.servicoCalculo = servicoCalculo;
+    }
+
+    /**
+     * Simula um pagamento utilizando PIX.
+     */
     @Transactional
-    public boolean processarPagamento(Long idRegistro, double valorPago) {
+    public boolean processarPagamento(
+            Long idRegistro,
+            double valorPago) {
 
-        ComprovantePagamento comprovante = processarPagamentoCompleto(
-                idRegistro,
-                valorPago,
-                MetodoPagamento.PIX
-        );
+        ComprovantePagamento comprovante =
+                processarPagamentoCompleto(
+                        idRegistro,
+                        valorPago,
+                        MetodoPagamento.PIX
+                );
 
         return comprovante != null;
     }
 
-    // Processa o pagamento e gera um comprovante fictício.
+    /**
+     * Processa o pagamento e gera um comprovante fictício.
+     *
+     * Também reconhece a gratuidade dos primeiros
+     * 15 minutos, conforme a tarifa calculada.
+     */
     @Transactional
     public ComprovantePagamento processarPagamentoCompleto(
             Long idRegistro,
             double valorPago,
             MetodoPagamento metodo) {
 
-        RegistroEstacionamento registro = repositorio.findById(idRegistro)
-                .orElseThrow(() -> new RegistroNaoEncontradoException(
-                        "Registro com ID " + idRegistro + " não encontrado."
-                ));
+        RegistroEstacionamento registro =
+                repositorio.findById(idRegistro)
+                        .orElseThrow(() ->
+                                new RegistroNaoEncontradoException(
+                                        "Registro com ID " +
+                                        idRegistro +
+                                        " não encontrado."
+                                )
+                        );
 
-        // Não permite pagamento após liberação ou saída.
-        if (registro.getStatusVeiculo() == StatusVeiculo.FINALIZADO) {
+        // Não permite pagamento após a saída.
+        if (registro.getStatusVeiculo()
+                == StatusVeiculo.FINALIZADO) {
+
             throw new IllegalStateException(
                     "O veículo já saiu do estacionamento."
             );
         }
 
-        if (registro.getStatusVeiculo() == StatusVeiculo.LIBERADO) {
+        // Não permite novo pagamento após a liberação.
+        if (registro.getStatusVeiculo()
+                == StatusVeiculo.LIBERADO) {
+
             throw new IllegalStateException(
                     "A saída já foi liberada para este veículo."
             );
         }
 
         // Impede pagamento duplicado.
-        if (registro.getStatusPagamento() == StatusPagamento.PAGO) {
+        if (registro.getStatusPagamento()
+                == StatusPagamento.PAGO) {
+
             throw new IllegalStateException(
                     "Este estacionamento já foi pago."
             );
         }
 
-        // Calcula a tarifa antes de processar um pagamento pendente
-if (registro.getStatusPagamento() == StatusPagamento.PENDENTE) {
+        // Calcula a tarifa quando o pagamento está pendente.
+        if (registro.getStatusPagamento()
+                == StatusPagamento.PENDENTE) {
 
-        BigDecimal tarifaCalculada =
-                servicoCalculo.calcularTarifa(idRegistro);
-    
-        // Atualiza o valor devido com base na permanencia
-        registro.setValorTarifaOriginal(tarifaCalculada);
-        registro.setValorTotal(tarifaCalculada);
-    
-        // Gratuidade automatica para a carencia de 15 minutos
-        if (tarifaCalculada.compareTo(BigDecimal.ZERO) == 0) {
-            registro.setStatusPagamento(StatusPagamento.ISENTO);
+            BigDecimal tarifaCalculada =
+                    servicoCalculo.calcularTarifa(idRegistro);
+
+            registro.setValorTarifaOriginal(tarifaCalculada);
+            registro.setValorTotal(tarifaCalculada);
+
+            // Até 15 minutos: tarifa zero.
+            if (tarifaCalculada.compareTo(BigDecimal.ZERO) == 0) {
+
+                registro.setStatusPagamento(
+                        StatusPagamento.ISENTO
+                );
+            }
         }
-    }
 
         BigDecimal valorTotal = registro.getValorTotal();
 
-        // A isenção deve ter sido autorizada pelo módulo de validação.
-        if (registro.getStatusPagamento() == StatusPagamento.ISENTO) {
+        // GRATUIDADE / ISENÇÃO
+        if (registro.getStatusPagamento()
+                == StatusPagamento.ISENTO) {
 
             if (valorTotal == null ||
                     valorTotal.compareTo(BigDecimal.ZERO) != 0) {
 
                 throw new IllegalStateException(
-                        "A isenção não está consistente com o valor total."
+                        "A isenção não está consistente " +
+                        "com o valor total."
                 );
             }
 
-            // Não gera uma nova transação se já existe comprovante.
+            // Evita gerar transações repetidas.
             if (registro.getCodigoTransacao() == null) {
 
-                registro.setMetodoPagamento(MetodoPagamento.GRATUIDADE);
+                registro.setMetodoPagamento(
+                        MetodoPagamento.GRATUIDADE
+                );
+
                 registro.setValorPago(BigDecimal.ZERO);
                 registro.setTroco(BigDecimal.ZERO);
-                registro.setHorarioPagamento(LocalDateTime.now());
+
+                registro.setHorarioPagamento(
+                        LocalDateTime.now()
+                );
 
                 registro.setCodigoTransacao(
                         "ISENTO-" +
                         UUID.randomUUID().toString()
-                                .substring(0, 8).toUpperCase()
+                                .substring(0, 8)
+                                .toUpperCase()
                 );
 
                 repositorio.save(registro);
@@ -138,27 +177,29 @@ if (registro.getStatusPagamento() == StatusPagamento.PENDENTE) {
         }
 
         // Outros estados não podem iniciar pagamento.
-        if (registro.getStatusPagamento() != StatusPagamento.PENDENTE) {
+        if (registro.getStatusPagamento()
+                != StatusPagamento.PENDENTE) {
+
             throw new IllegalStateException(
                     "O registro não está disponível para pagamento."
             );
         }
 
-        // Não permite pagamento antes do cálculo da tarifa.
         if (valorTotal == null) {
             throw new IllegalStateException(
-                    "A tarifa do estacionamento ainda não foi calculada."
+                    "A tarifa ainda não foi calculada."
             );
         }
 
         if (valorTotal.compareTo(BigDecimal.ZERO) <= 0) {
+
             throw new IllegalStateException(
-                    "Valor total inválido. Verifique o cálculo ou a isenção."
+                    "Valor total inválido."
             );
         }
 
-        // Valida o valor informado para o pagamento fictício.
         if (!Double.isFinite(valorPago) || valorPago < 0) {
+
             throw new IllegalArgumentException(
                     "O valor informado para pagamento é inválido."
             );
@@ -167,27 +208,33 @@ if (registro.getStatusPagamento() == StatusPagamento.PENDENTE) {
         BigDecimal pagamento;
 
         try {
+
             pagamento = BigDecimal.valueOf(valorPago)
                     .setScale(2, RoundingMode.UNNECESSARY);
-        } catch (ArithmeticException e) {
+
+        } catch (ArithmeticException erro) {
+
             throw new IllegalArgumentException(
                     "Informe o pagamento com no máximo duas casas decimais."
             );
         }
 
         if (pagamento.compareTo(valorTotal) < 0) {
+
             throw new ValorInsuficienteException(
-                    "Valor insuficiente. Total devido: R$ " + valorTotal
+                    "Valor insuficiente. Total devido: R$ " +
+                    valorTotal
             );
         }
 
         if (metodo == MetodoPagamento.GRATUIDADE) {
+
             throw new IllegalArgumentException(
                     "Gratuidade não é um método válido para pagamento."
             );
         }
 
-        // Calcula o troco usando BigDecimal.
+        // PROCESSAMENTO DO PAGAMENTO
         BigDecimal troco = pagamento.subtract(valorTotal);
 
         registro.setStatusPagamento(StatusPagamento.PAGO);
@@ -195,7 +242,9 @@ if (registro.getStatusPagamento() == StatusPagamento.PENDENTE) {
         registro.setTroco(troco);
 
         registro.setMetodoPagamento(
-                metodo != null ? metodo : MetodoPagamento.PIX
+                metodo != null
+                        ? metodo
+                        : MetodoPagamento.PIX
         );
 
         registro.setHorarioPagamento(LocalDateTime.now());
@@ -203,13 +252,12 @@ if (registro.getStatusPagamento() == StatusPagamento.PENDENTE) {
         registro.setCodigoTransacao(
                 "AUT-" +
                 UUID.randomUUID().toString()
-                        .substring(0, 8).toUpperCase()
+                        .substring(0, 8)
+                        .toUpperCase()
         );
 
         repositorio.save(registro);
 
-        // O comprovante ainda utiliza double na versão do Vinicius.
-        // Depois vamos corrigir essa classe também.
         return new ComprovantePagamento(
                 registro.getCodigoTransacao(),
                 registro.getId(),
@@ -223,16 +271,28 @@ if (registro.getStatusPagamento() == StatusPagamento.PENDENTE) {
         );
     }
 
-    // Autoriza ou bloqueia a cancela virtual.
+    /**
+     * Libera a cancela virtual.
+     *
+     * Apenas veículos pagos ou isentos podem ser liberados.
+     * A primeira liberação inicia o prazo de 30 minutos.
+     */
     @Transactional
     public boolean tentarLiberarCancela(Long idRegistro) {
 
-        RegistroEstacionamento registro = repositorio.findById(idRegistro)
-                .orElseThrow(() -> new RegistroNaoEncontradoException(
-                        "Registro com ID " + idRegistro + " não encontrado."
-                ));
+        RegistroEstacionamento registro =
+                repositorio.findById(idRegistro)
+                        .orElseThrow(() ->
+                                new RegistroNaoEncontradoException(
+                                        "Registro com ID " +
+                                        idRegistro +
+                                        " não encontrado."
+                                )
+                        );
 
-        if (registro.getStatusVeiculo() == StatusVeiculo.FINALIZADO) {
+        if (registro.getStatusVeiculo()
+                == StatusVeiculo.FINALIZADO) {
+
             throw new IllegalStateException(
                     "Este veículo já realizou a saída."
             );
@@ -241,57 +301,83 @@ if (registro.getStatusPagamento() == StatusPagamento.PENDENTE) {
         BigDecimal valorTotal = registro.getValorTotal();
 
         boolean pagamentoValido =
-                registro.getStatusPagamento() == StatusPagamento.PAGO
+                registro.getStatusPagamento()
+                        == StatusPagamento.PAGO
                 && valorTotal != null
                 && registro.getValorPago() != null
-                && registro.getValorPago().compareTo(valorTotal) >= 0;
+                && registro.getValorPago()
+                        .compareTo(valorTotal) >= 0;
 
         boolean isencaoValida =
-                registro.getStatusPagamento() == StatusPagamento.ISENTO
+                registro.getStatusPagamento()
+                        == StatusPagamento.ISENTO
                 && valorTotal != null
                 && valorTotal.compareTo(BigDecimal.ZERO) == 0;
 
         if (!pagamentoValido && !isencaoValida) {
+
             throw new IllegalStateException(
-                    "Saída não autorizada: pagamento ou isenção pendente."
+                    "Saída não autorizada: pagamento " +
+                    "ou isenção pendente."
             );
         }
 
-        // Evita alterar repetidamente o horário de liberação.
-        if (registro.getStatusVeiculo() == StatusVeiculo.LIBERADO) {
+        // Se já foi liberado, NÃO reinicia os 30 minutos.
+        if (registro.getStatusVeiculo()
+                == StatusVeiculo.LIBERADO) {
+
+            // Também impede reutilizar uma autorização vencida.
+            servicoPrazoSaida.validarPrazoSaida(registro);
+
             return true;
         }
 
-        if (registro.getStatusVeiculo() != StatusVeiculo.ESTACIONADO) {
+        if (registro.getStatusVeiculo()
+                != StatusVeiculo.ESTACIONADO) {
+
             throw new IllegalStateException(
                     "Estado do veículo inválido para liberar a cancela."
             );
         }
 
+        // Inicia a validade da liberação.
         registro.setStatusVeiculo(StatusVeiculo.LIBERADO);
-        registro.setHorarioLiberacaoCancela(LocalDateTime.now());
+
+        registro.setHorarioLiberacaoCancela(
+                LocalDateTime.now()
+        );
 
         repositorio.save(registro);
 
         return true;
     }
 
-    // Registra a saída e encerra a permanência do veículo.
+    /**
+     * Finaliza a saída do veículo.
+     *
+     * O veículo só pode sair se:
+     * 1. A cancela estiver liberada;
+     * 2. Os 30 minutos ainda não tiverem terminado.
+     */
     @Transactional
     public void registrarSaida(Long idRegistro) {
 
-        RegistroEstacionamento registro = repositorio.findById(idRegistro)
-                .orElseThrow(() -> new RegistroNaoEncontradoException(
-                        "Registro com ID " + idRegistro + " não encontrado."
-                ));
+        RegistroEstacionamento registro =
+                repositorio.findById(idRegistro)
+                        .orElseThrow(() ->
+                                new RegistroNaoEncontradoException(
+                                        "Registro com ID " +
+                                        idRegistro +
+                                        " não encontrado."
+                                )
+                        );
 
-        if (registro.getStatusVeiculo() != StatusVeiculo.LIBERADO) {
-            throw new IllegalStateException(
-                    "A cancela ainda não foi liberada para este veículo."
-            );
-        }
+        // A regra verifica o status e o prazo de validade.
+        servicoPrazoSaida.validarPrazoSaida(registro);
 
+        // Saída autorizada dentro do prazo.
         registro.setStatusVeiculo(StatusVeiculo.FINALIZADO);
+
         registro.setHorarioSaida(LocalDateTime.now());
 
         repositorio.save(registro);

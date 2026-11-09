@@ -1,0 +1,21 @@
+<nav class="menu" th:fragment="menu(ativo)" aria-label="Menu principal"
+     xmlns:th="http://www.thymeleaf.org">
+
+    <button type="button" class="menu__botao" id="menu-botao"
+            aria-expanded="false" aria-controls="menu-lista">Menu</button>
+
+    <ul class="menu__lista" id="menu-lista">
+        <li>
+            <a class="menu__link" th:href="@{/}"
+               th:classappend="${ativo == 'inicio'} ? 'menu__link--ativo'"
+               th:attr="aria-current=${ativo == 'inicio'} ? 'page'">Início</a>
+        </li>
+        <!-- Itens abaixo ainda sem página: ficam desativados até a tela existir -->
+        <li><span class="menu__link menu__link--desativado" aria-disabled="true" title="Disponível em breve">Entrada</span></li>
+        <li><span class="menu__link menu__link--desativado" aria-disabled="true" title="Disponível em breve">Consulta</span></li>
+        <li><span class="menu__link menu__link--desativado" aria-disabled="true" title="Disponível em breve">Nota fiscal</span></li>
+        <li><span class="menu__link menu__link--desativado" aria-disabled="true" title="Disponível em breve">Validação</span></li>
+        <li><span class="menu__link menu__link--desativado" aria-disabled="true" title="Disponível em breve">Pagamento</span></li>
+        <li><span class="menu__link menu__link--desativado" aria-disabled="true" title="Disponível em breve">Cancela</span></li>
+    </ul>
+</nav>
